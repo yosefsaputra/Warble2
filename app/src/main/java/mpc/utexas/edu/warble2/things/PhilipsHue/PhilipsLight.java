@@ -38,6 +38,7 @@ public class PhilipsLight extends Light implements LightInterface {
     public void setOn() {
         HashMap<String, Object> lightState = new HashMap<>();
         lightState.put("on", true);
+        lightState.put("bri", 50);
 
         service.putLight(this.user.getUserid(), this.id, lightState).enqueue(new Callback<List<Object>>() {
             @Override

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="mpc.utexas.edu.warble2.ShowInfoActivity">
+    tools:context="mpc.utexas.edu.warble2.ui.ShowInfoActivity">
 
     <TextView
         android:id="@+id/infoText"

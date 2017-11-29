@@ -1,4 +1,4 @@
-package mpc.utexas.edu.warble2;
+package mpc.utexas.edu.warble2.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import mpc.utexas.edu.warble2.R;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserResponse;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserRequest;
