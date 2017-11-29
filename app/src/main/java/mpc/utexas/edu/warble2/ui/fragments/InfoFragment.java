@@ -1,15 +1,16 @@
-package mpc.utexas.edu.warble2;
+package mpc.utexas.edu.warble2.ui.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -25,35 +26,45 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import mpc.utexas.edu.warble2.R;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 
-public class MainActivity extends AppCompatActivity {
-    public String username = "yosef";
-    public String userid = "QVhaSMPsPn-VVA5KwxSks3Lj1LAp92Wz3SWzWYN3";
+/**
+ * Created by yosef on 11/28/2017.
+ */
 
-//    PhilipsHueService mService = PhilipsHueUtil.getService("http://192.168.1.74");
+public class InfoFragment extends Fragment {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_info, container, false);
+        return rootView;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        final SwipeRefreshLayout swipeRefreshLayout = getView().findViewById(R.id.swiperefresh);
+        final SwipeRefreshLayout.OnRefreshListener swipeRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new SSDPDiscovery().execute();
+            }
+        };
+        swipeRefreshLayout.setOnRefreshListener(swipeRefreshListener);
 
-        setUsernameView();
-        setUseridView();
-        setCreateUserButton();
-        setShowInfoButton();
-
-//        setLight1OffButton();
-//        setLight1OnButton();
-
-        new SSDPDiscovery().execute();
+        // Refreshing programmatically
+        swipeRefreshLayout.post(new Runnable() {
+            @Override public void run() {
+                swipeRefreshLayout.setRefreshing(true);
+                swipeRefreshListener.onRefresh();
+            }
+        });
     }
 
     public class SSDPDiscovery extends AsyncTask<Void, Void, List<Bridge>> {
@@ -88,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -96,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
             List<Bridge> bridges = new ArrayList<>();
             List<String> uuid_bridges = new ArrayList<>();
             for (String upnp_message : upnp_messages) {
-                System.out.println(upnp_message);
                 if (upnp_message.contains("IpBridge")) {
                     Pattern pattern = Pattern.compile("LOCATION: (.+?)(\\r*)(\\n)", Pattern.DOTALL | Pattern.MULTILINE);
                     Matcher matcher = pattern.matcher(upnp_message);
@@ -117,17 +126,17 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<Bridge> bridges) {
-            ProgressBar asyncTaskProgressBar = findViewById(R.id.progressBar);
-            asyncTaskProgressBar.setVisibility(View.INVISIBLE);
-
             List<String> bridge_names = new ArrayList<>();
             for (Bridge bridge: bridges) {
                 bridge_names.add(bridge.getUUID());
             }
 
-            ListView bridgeListView = findViewById(R.id.listBridgesView);
-            ArrayAdapter<Bridge> adapter = new BridgeArrayAdapter(getApplicationContext(), bridges);
+            ListView bridgeListView = getView().findViewById(R.id.listBridgesView);
+            ArrayAdapter<Bridge> adapter = new BridgeArrayAdapter(getContext(), bridges);
             bridgeListView.setAdapter(adapter);
+
+            SwipeRefreshLayout swipeRefreshLayout = getView().findViewById(R.id.swiperefresh);
+            swipeRefreshLayout.setRefreshing(false);
         }
 
         private Document requestWebpage(String string_url) {
@@ -180,96 +189,10 @@ public class MainActivity extends AppCompatActivity {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View rowView = inflater.inflate(R.layout.bridge_layout, parent, false);
-            TextView textView = (TextView) rowView.findViewById(R.id.textView);
+            TextView textView = (TextView) rowView.findViewById(R.id.bridgeNameTextView);
             textView.setText(bridges.get(position).getName());
             return rowView;
         }
     }
 
-
-    private void setUsernameView() {
-        TextView usernameView = findViewById(R.id.username);
-        if (username == null) {
-            usernameView.setText("null");
-        } else {
-            usernameView.setText(username);
-        }
-    }
-
-    private void setUseridView() {
-        TextView useridView = findViewById(R.id.userid);
-
-        if (userid == null) {
-            useridView.setText("null");
-        } else {
-            useridView.setText(userid);
-        }
-    }
-
-    private void setCreateUserButton() {
-        Button createUserButton = findViewById(R.id.createUserButton);
-        createUserButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent createUser = new Intent(MainActivity.this, CreateUserActivity.class);
-                createUser.putExtra("username", username);
-                createUser.putExtra("userid", userid);
-                startActivity(createUser);
-            }
-        });
-    }
-
-    private void setShowInfoButton() {
-        Button showInfoButton = findViewById(R.id.showInfoButton);
-        showInfoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent createUser = new Intent(MainActivity.this, ShowInfoActivity.class);
-                createUser.putExtra("username", username);
-                createUser.putExtra("userid", userid);
-                startActivity(createUser);
-            }
-        });
-    }
-
-    private HashMap<String, Object> returnLightStateHashMap(boolean on, int bri) {
-        HashMap<String, Object> lightState = new HashMap<>();
-        lightState.put("on", on);
-        lightState.put("bri", bri);
-        lightState.put("transitiontime", 0);
-
-        return lightState;
-    }
-
-//    private void setLight1OnButton() {
-//        final Button light1OnButton = findViewById(R.id.light1OnButton);
-//        light1OnButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//            mService.putLight(userid, "10", returnLightStateHashMap(true, 50)).enqueue(new Callback<List<Object>>() {
-//                @Override
-//                public void onResponse(Call<List<Object>> call, Response<List<Object>> response) {
-//                    PhilipsUser user = new PhilipsUser(username, userid);
-//                    PhilipsLight light = new PhilipsLight("10", "10", user);
-//                    light.setOn();
-//                }
-//
-//                @Override
-//                public void onFailure(Call<List<Object>> call, Throwable t) {}
-//            });
-//            }
-//        });
-//    }
-//
-//    private void setLight1OffButton() {
-//        Button light1OffButton = findViewById(R.id.light1OffButton);
-//        light1OffButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                PhilipsUser user = new PhilipsUser(username, userid);
-//                PhilipsLight light = new PhilipsLight("10", "10", user);
-//                light.setOff();
-//            }
-//        });
-//    }
 }
