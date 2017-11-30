@@ -1,5 +1,10 @@
 package mpc.utexas.edu.warble2.things;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
+
 /**
  * Created by yosef on 11/12/2017.
  */
@@ -10,6 +15,15 @@ public class Bridge extends Thing {
     protected String id;
     protected String base_url;
     protected String UUID;
+
+    public static List<Bridge> discover(){
+        List<Bridge> bridges = new ArrayList<>();
+
+        // TODO Add more bridge childs, if necessary. Find idea how to do this better because it is too detailed.
+        bridges.addAll(PhilipsBridge.discover());
+
+        return bridges;
+    }
 
     public Bridge(String name, String id, String base_url) {
         this.name = name;
