@@ -33,7 +33,7 @@ public class SwitchFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 PhilipsUser user = new PhilipsUser(MainActivity.username, MainActivity.userid);
-                PhilipsBridge bridge = new PhilipsBridge("hue", "hue", "http://192.168.1.24");
+                PhilipsBridge bridge = new PhilipsBridge("hue", "hue", "http://192.168.1.74");
                 PhilipsLight light = new PhilipsLight("10", "10", user, bridge);
                 if (lightSwitch.isChecked()) {
                     light.setOn();
