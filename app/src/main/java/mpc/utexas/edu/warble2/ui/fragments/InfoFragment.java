@@ -1,6 +1,7 @@
 package mpc.utexas.edu.warble2.ui.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,6 +10,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -17,6 +19,7 @@ import java.util.List;
 
 import mpc.utexas.edu.warble2.R;
 import mpc.utexas.edu.warble2.things.Bridge;
+import mpc.utexas.edu.warble2.ui.BridgeViewActivity;
 
 /**
  * Created by yosef on 11/28/2017.
@@ -64,6 +67,15 @@ public class InfoFragment extends Fragment {
             ListView bridgeListView = getView().findViewById(R.id.listBridgesView);
             ArrayAdapter<Bridge> adapter = new BridgeArrayAdapter(getContext(), Bridge.getAllBridgesFromDatabase(getContext()));
             bridgeListView.setAdapter(adapter);
+            bridgeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Intent intent = new Intent(getActivity(), BridgeViewActivity.class);
+                    List<Bridge> bridges = Bridge.getAllBridgesFromDatabase(getContext());
+                    intent.putExtra("bridge_position", i);
+                    startActivity(intent);
+                }
+            });
 
             SwipeRefreshLayout swipeRefreshLayout = getView().findViewById(R.id.listBridgesSwipeRefresh);
             swipeRefreshLayout.setRefreshing(false);

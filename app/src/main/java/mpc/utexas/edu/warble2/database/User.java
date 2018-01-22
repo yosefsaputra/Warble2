@@ -21,12 +21,13 @@ import android.arch.persistence.room.PrimaryKey;
 public class User {
     @PrimaryKey(autoGenerate = true)
     long id;
-    public String user;
+    public String username;
     public String userId;
     long bridgeId;
 
-    public User(String user, String userId, long bridgeId) {
-        this.user = user;
+    public User(String username, String userId, long bridgeId) {
+        this.username = username;
         this.userId = userId;
+        this.bridgeId = bridgeId;
     }
 }

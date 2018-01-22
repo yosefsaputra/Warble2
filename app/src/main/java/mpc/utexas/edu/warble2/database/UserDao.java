@@ -20,7 +20,7 @@ public interface UserDao {
     List<User> getUser(long id);
 
     @Query("SELECT * FROM user WHERE bridgeId=:bridgeId")
-    List<User> getUserForBridge(long bridgeId);
+    List<User> getUsersForBridge(long bridgeId);
 
     @Query("DELETE FROM user WHERE id=:id")
     void delete(long id);

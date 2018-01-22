@@ -2,12 +2,12 @@ package mpc.utexas.edu.warble2.things;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.ListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import mpc.utexas.edu.warble2.database.AppDatabase;
+import mpc.utexas.edu.warble2.database.User;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 
 /**
@@ -29,13 +29,6 @@ public class Bridge extends Thing {
         bridges.addAll(PhilipsBridge.discover());
 
         return bridges;
-    }
-
-    public Bridge(String name, String id, String base_url) {
-        this.name = name;
-        this.id = id;
-        this.UUID = id;
-        this.base_url = base_url;
     }
 
     public static void updateBridgesToDatabase(Context context, List<Bridge> bridges) {
@@ -70,10 +63,17 @@ public class Bridge extends Thing {
         Log.d(TAG, "Print Bridges from Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
         mpc.utexas.edu.warble2.database.Bridge[] bridges = appDatabase.bridgeDao().getAllBridges();
-        for (mpc.utexas.edu.warble2.database.Bridge bridge: bridges) {
+        for (mpc.utexas.edu.warble2.database.Bridge bridge : bridges) {
             Log.d(TAG, String.format("- (id %s, UUID %s, name %s, base_url %s)", bridge.id, bridge.UUID, bridge.name, bridge.base_url));
         }
         Log.d(TAG, "");
+    }
+
+    public Bridge(String name, String id, String base_url) {
+        this.name = name;
+        this.id = id;
+        this.UUID = id;
+        this.base_url = base_url;
     }
 
     public String getUUID(){
@@ -90,6 +90,31 @@ public class Bridge extends Thing {
 
     public void setName(String name){
         this.name = name;
+    }
+
+    public String getBaseUrl(){
+        return this.base_url;
+    }
+
+    public void setBaseUrl(String base_url){
+        this.base_url = base_url;
+    }
+
+    public void addUserToDatabase(Context context, String username, String userId) {
+        AppDatabase appDatabase = AppDatabase.getDatabase(context);
+
+        mpc.utexas.edu.warble2.database.Bridge dbBridge = appDatabase.bridgeDao().getBridgeByUUID(this.getUUID());
+        System.out.println("This is the ID of dbBridge " + dbBridge.id);
+        User user = new User(username, userId, dbBridge.id);
+        appDatabase.userDao().addUser(user);
+    }
+
+    public List<User> getAllUsersFromDatabase(Context context){
+        AppDatabase appDatabase = AppDatabase.getDatabase(context);
+
+        mpc.utexas.edu.warble2.database.Bridge dbBridge = appDatabase.bridgeDao().getBridgeByUUID(this.getUUID());
+
+        return appDatabase.userDao().getUsersForBridge(dbBridge.id);
     }
 
     public String toString() {
