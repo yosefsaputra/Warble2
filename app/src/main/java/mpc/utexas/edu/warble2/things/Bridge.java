@@ -1,8 +1,13 @@
 package mpc.utexas.edu.warble2.things;
 
+import android.content.Context;
+import android.util.Log;
+import android.widget.ListAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import mpc.utexas.edu.warble2.database.AppDatabase;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 
 /**
@@ -11,6 +16,7 @@ import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 
 public class Bridge extends Thing {
     public static String identifier = "Bridge";
+    public static String TAG = "Bridge";
     protected String name;
     protected String id;
     protected String base_url;
@@ -19,7 +25,7 @@ public class Bridge extends Thing {
     public static List<Bridge> discover(){
         List<Bridge> bridges = new ArrayList<>();
 
-        // TODO Add more bridge childs, if necessary. Find idea how to do this better because it is too detailed.
+        // TODO Add more bridge children, if necessary. Find idea how to do this better because it is too detailed.
         bridges.addAll(PhilipsBridge.discover());
 
         return bridges;
@@ -28,7 +34,46 @@ public class Bridge extends Thing {
     public Bridge(String name, String id, String base_url) {
         this.name = name;
         this.id = id;
+        this.UUID = id;
         this.base_url = base_url;
+    }
+
+    public static void updateBridgesToDatabase(Context context, List<Bridge> bridges) {
+        AppDatabase appDatabase = AppDatabase.getDatabase(context);
+
+        for (Bridge bridge: bridges) {
+            mpc.utexas.edu.warble2.database.Bridge foundDbBridge = appDatabase.bridgeDao().getBridgeByUUID(bridge.UUID);
+            mpc.utexas.edu.warble2.database.Bridge dbBridge = new mpc.utexas.edu.warble2.database.Bridge(bridge.UUID, bridge.name, bridge.base_url);
+
+            if (foundDbBridge == null) {
+                appDatabase.bridgeDao().addBridge(dbBridge);
+            } else {
+                appDatabase.bridgeDao().updateBridge(dbBridge);
+            }
+        }
+    }
+
+    public static List<Bridge> getAllBridgesFromDatabase(Context context) {
+        AppDatabase appDatabase = AppDatabase.getDatabase(context);
+        mpc.utexas.edu.warble2.database.Bridge[] dbBridges = appDatabase.bridgeDao().getAllBridges();
+
+        List<Bridge> bridges = new ArrayList<>();
+
+        for (mpc.utexas.edu.warble2.database.Bridge dbBridge: dbBridges) {
+            bridges.add(new Bridge(dbBridge.name, dbBridge.UUID, dbBridge.base_url));
+        }
+
+        return bridges;
+    }
+
+    public static void printBridgesFromDatabase(Context context) {
+        Log.d(TAG, "Print Bridges from Database");
+        AppDatabase appDatabase = AppDatabase.getDatabase(context);
+        mpc.utexas.edu.warble2.database.Bridge[] bridges = appDatabase.bridgeDao().getAllBridges();
+        for (mpc.utexas.edu.warble2.database.Bridge bridge: bridges) {
+            Log.d(TAG, String.format("- (id %s, UUID %s, name %s, base_url %s)", bridge.id, bridge.UUID, bridge.name, bridge.base_url));
+        }
+        Log.d(TAG, "");
     }
 
     public String getUUID(){

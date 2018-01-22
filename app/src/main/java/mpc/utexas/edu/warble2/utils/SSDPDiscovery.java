@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class SSDPDiscovery {
+    private static final String TAG = "SSDPDiscovery";
+
     public static List<String> discover() {
         return discover(5000);
     }
@@ -42,6 +44,7 @@ public class SSDPDiscovery {
 
                 String msg = new String(receivePacket.getData(), 0, receivePacket.getLength());
                 upnp_messages.add(msg);
+                // Log.d(TAG, msg);
 
                 // If sleep is not given, Philips HUE bridge is not found consistently. For some reasons.
                 try {

@@ -1,17 +1,55 @@
 package mpc.utexas.edu.warble2.things.PhilipsHue;
 
+import android.arch.persistence.db.SupportSQLiteOpenHelper;
+import android.arch.persistence.room.DatabaseConfiguration;
+import android.arch.persistence.room.InvalidationTracker;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentSender;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.database.DatabaseErrorHandler;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.UserHandle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.view.Display;
+
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import mpc.utexas.edu.warble2.database.AppDatabase;
+import mpc.utexas.edu.warble2.database.BridgeDao;
+import mpc.utexas.edu.warble2.database.UserDao;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.BridgeInterface;
@@ -56,6 +94,7 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
         List<String> uuid_bridges = new ArrayList<>();
         for (String upnp_message : upnp_messages) {
             if (upnp_message.contains("IpBridge")) {
+                // System.out.println(upnp_message);
                 Pattern pattern = Pattern.compile("LOCATION: (.+?)(\\r*)(\\n)", Pattern.DOTALL | Pattern.MULTILINE);
                 Matcher matcher = pattern.matcher(upnp_message);
                 if (matcher.find()) {

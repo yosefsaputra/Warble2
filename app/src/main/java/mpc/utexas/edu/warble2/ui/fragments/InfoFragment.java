@@ -58,8 +58,11 @@ public class InfoFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<Bridge> bridges) {
+            Bridge.updateBridgesToDatabase(getContext(), bridges);
+            Bridge.printBridgesFromDatabase(getContext());
+
             ListView bridgeListView = getView().findViewById(R.id.listBridgesView);
-            ArrayAdapter<Bridge> adapter = new BridgeArrayAdapter(getContext(), bridges);
+            ArrayAdapter<Bridge> adapter = new BridgeArrayAdapter(getContext(), Bridge.getAllBridgesFromDatabase(getContext()));
             bridgeListView.setAdapter(adapter);
 
             SwipeRefreshLayout swipeRefreshLayout = getView().findViewById(R.id.listBridgesSwipeRefresh);
@@ -87,5 +90,4 @@ public class InfoFragment extends Fragment {
             return rowView;
         }
     }
-
 }
