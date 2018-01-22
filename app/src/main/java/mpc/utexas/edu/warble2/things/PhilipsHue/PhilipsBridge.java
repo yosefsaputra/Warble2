@@ -28,12 +28,15 @@ import android.os.Looper;
 import android.os.UserHandle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.Display;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,12 +52,18 @@ import java.util.regex.Pattern;
 
 import mpc.utexas.edu.warble2.database.AppDatabase;
 import mpc.utexas.edu.warble2.database.BridgeDao;
+import mpc.utexas.edu.warble2.database.User;
 import mpc.utexas.edu.warble2.database.UserDao;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.BridgeInterface;
+import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
 import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
 import mpc.utexas.edu.warble2.utils.SSDPDiscovery;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by yosef on 11/12/2017.

@@ -6,7 +6,7 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 /**
- * Created by yosef on 12/21/2017.
+ * Created by yosef on 1/21/2018.
  */
 
 @Entity(foreignKeys =
@@ -16,18 +16,15 @@ import android.arch.persistence.room.PrimaryKey;
         childColumns = "bridgeId",
         onDelete = ForeignKey.CASCADE
 ),
-        indices = {@Index(value = "id"), @Index(value = "userId")}
+        indices = {@Index(value = "id")}
 )
-public class User {
+public class Light {
     @PrimaryKey(autoGenerate = true)
     long id;
-    public String username;
-    public String userId;
-    long bridgeId;
+    public String lightName;
+    public long bridgeId;
 
-    public User(String username, String userId, long bridgeId) {
-        this.username = username;
-        this.userId = userId;
-        this.bridgeId = bridgeId;
+    public Light(String lightName) {
+        this.lightName = lightName;
     }
 }

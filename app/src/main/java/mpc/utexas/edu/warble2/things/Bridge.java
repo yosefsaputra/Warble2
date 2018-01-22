@@ -1,14 +1,32 @@
 package mpc.utexas.edu.warble2.things;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import mpc.utexas.edu.warble2.database.AppDatabase;
 import mpc.utexas.edu.warble2.database.User;
+import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
+import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
+import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
+import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by yosef on 11/12/2017.
@@ -21,6 +39,8 @@ public class Bridge extends Thing {
     protected String id;
     protected String base_url;
     protected String UUID;
+    // TODO make it more general. Is this necessary?
+    private PhilipsHueService service;
 
     public static List<Bridge> discover(){
         List<Bridge> bridges = new ArrayList<>();
@@ -74,6 +94,8 @@ public class Bridge extends Thing {
         this.id = id;
         this.UUID = id;
         this.base_url = base_url;
+
+        this.service = PhilipsHueUtil.getService(base_url);
     }
 
     public String getUUID(){
@@ -115,6 +137,44 @@ public class Bridge extends Thing {
         mpc.utexas.edu.warble2.database.Bridge dbBridge = appDatabase.bridgeDao().getBridgeByUUID(this.getUUID());
 
         return appDatabase.userDao().getUsersForBridge(dbBridge.id);
+    }
+
+    // TODO to make the philips light to be general. Is this function located correctly?
+    public List<PhilipsLight> getAllPhilipsLights(Context context) {
+        final List<User> users = this.getAllUsersFromDatabase(context);
+        final Bridge bridge = this;
+        final List<PhilipsLight> lights = new ArrayList<>();
+
+        ResponseBody responseBody;
+        try {
+            responseBody = service.getLights(users.get(0).userId).execute().body();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            responseBody = null;
+        }
+
+        JSONObject jsonObject;
+        try {
+            JSONParser parser = new JSONParser();
+            jsonObject = (JSONObject) parser.parse(responseBody.string());
+        } catch (ParseException | IOException ex) {
+            ex.printStackTrace();
+            jsonObject = new JSONObject();
+        }
+
+        List<String> lightNames = new ArrayList<>();
+        for (Object o : jsonObject.keySet()) {
+            String lightName = o.toString();
+            lightNames.add(lightName);
+        }
+
+        for (String lightName : lightNames) {
+            PhilipsBridge philipsBridge = new PhilipsBridge(bridge.name, bridge.UUID, bridge.base_url);
+            PhilipsLight philipsLight = new PhilipsLight(lightName, lightName, PhilipsUser.getUserFromUserDb(users.get(0)), philipsBridge);
+            lights.add(philipsLight);
+        }
+
+        return lights;
     }
 
     public String toString() {
