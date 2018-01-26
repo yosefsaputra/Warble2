@@ -71,7 +71,7 @@ public class InfoFragment extends Fragment {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Intent intent = new Intent(getActivity(), BridgeViewActivity.class);
-                    List<Bridge> bridges = Bridge.getAllBridgesFromDatabase(getContext());
+                    // List<Bridge> bridges = Bridge.getAllBridgesFromDatabase(getContext());
                     intent.putExtra("bridge_position", i);
                     startActivity(intent);
                 }

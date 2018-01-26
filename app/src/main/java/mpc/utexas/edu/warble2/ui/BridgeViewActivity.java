@@ -16,11 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mpc.utexas.edu.warble2.R;
+import mpc.utexas.edu.warble2.database.Light;
 import mpc.utexas.edu.warble2.database.User;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserRequest;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserResponse;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.Bridge;
+import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
 import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -100,9 +102,14 @@ public class BridgeViewActivity extends AppCompatActivity {
         ArrayAdapter<String> usersListAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.user_layout, R.id.userNameTextView, userIds);
         userList.setAdapter(usersListAdapter);
 
+
         ListView lightList = (ListView) findViewById(R.id.lightList);
-        String[] lights = {};
-        ArrayAdapter<String> lightsListAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.light_layout, R.id.lightTextView, lights);
+        List<Light> lights = Bridge.getLightsFromDatabase(getApplicationContext());
+        List<String> lightIds = new ArrayList<>();
+        for (Light light: lights) {
+            lightIds.add(light.lightName);
+        }
+        ArrayAdapter<String> lightsListAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.light_layout, R.id.lightTextView, lightIds);
         lightList.setAdapter(lightsListAdapter);
     }
 }

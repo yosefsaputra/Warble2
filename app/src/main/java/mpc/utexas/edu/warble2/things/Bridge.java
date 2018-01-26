@@ -16,8 +16,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import mpc.utexas.edu.warble2.database.AppDatabase;
-import mpc.utexas.edu.warble2.database.User;
+import mpc.utexas.edu.warble2.database.*;
+import mpc.utexas.edu.warble2.database.Light;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
@@ -52,6 +52,7 @@ public class Bridge extends Thing {
     }
 
     public static void updateBridgesToDatabase(Context context, List<Bridge> bridges) {
+        Log.d(TAG, "Updating Bridges to Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
 
         for (Bridge bridge: bridges) {
@@ -67,6 +68,7 @@ public class Bridge extends Thing {
     }
 
     public static List<Bridge> getAllBridgesFromDatabase(Context context) {
+        Log.d(TAG, "Getting All Bridges from Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
         mpc.utexas.edu.warble2.database.Bridge[] dbBridges = appDatabase.bridgeDao().getAllBridges();
 
@@ -141,6 +143,7 @@ public class Bridge extends Thing {
 
     // TODO to make the philips light to be general. Is this function located correctly?
     public List<PhilipsLight> getAllPhilipsLights(Context context) {
+        Log.d(TAG, "Getting All Philips Lights");
         final List<User> users = this.getAllUsersFromDatabase(context);
         final Bridge bridge = this;
         final List<PhilipsLight> lights = new ArrayList<>();
@@ -175,6 +178,23 @@ public class Bridge extends Thing {
         }
 
         return lights;
+    }
+
+    public static void addLightsToDatabase(Context context, String lightName, long bridgeId) {
+        Log.d(TAG, "Adding lights to database");
+
+        AppDatabase appDatabase = AppDatabase.getDatabase(context);
+
+        mpc.utexas.edu.warble2.database.Light light = new Light(lightName, bridgeId);
+        appDatabase.lightDao().addLight(light);
+    }
+
+    public static List<Light> getLightsFromDatabase(Context context) {
+        Log.d(TAG, "Getting Light from Database");
+
+        AppDatabase appDatabase = AppDatabase.getDatabase(context);
+
+        return appDatabase.lightDao().getAllLights();
     }
 
     public String toString() {

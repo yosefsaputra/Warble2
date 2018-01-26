@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,17 +15,15 @@ import java.util.List;
 
 import mpc.utexas.edu.warble2.R;
 import mpc.utexas.edu.warble2.things.Bridge;
-import mpc.utexas.edu.warble2.things.Light;
-import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
-import mpc.utexas.edu.warble2.ui.MainActivity;
-import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
 
 /**
  * Created by yosef on 11/28/2017.
  */
 
 public class SwitchFragment extends Fragment {
+    private static String TAG = "SwitchFragment";
+
     List<PhilipsLight> lights = new ArrayList<>();
     List<Bridge> bridges;
 
@@ -47,7 +46,13 @@ public class SwitchFragment extends Fragment {
 
             bridges = Bridge.getAllBridgesFromDatabase(getContext());
             for (Bridge bridge : bridges) {
-                List<PhilipsLight> lightsInBridge = bridge.getAllPhilipsLights(getContext());
+                List<PhilipsLight> lightsInBridge = new ArrayList<>();
+                try {
+                    lightsInBridge = bridge.getAllPhilipsLights(getContext());
+                } catch (RuntimeException e) {
+                    Log.d(TAG, e.getMessage());
+                }
+
                 lights.addAll(lightsInBridge);
             }
 

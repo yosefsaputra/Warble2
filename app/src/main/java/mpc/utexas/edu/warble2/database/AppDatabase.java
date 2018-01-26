@@ -9,12 +9,13 @@ import android.content.Context;
  * Created by yosef on 12/21/2017.
  */
 
-@Database(entities = {Bridge.class, User.class}, version = 17, exportSchema = false)
+@Database(entities = {Bridge.class, User.class, Light.class}, version = 18, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase INSTANCE;
 
     public abstract BridgeDao bridgeDao();
     public abstract UserDao userDao();
+    public abstract LightDao lightDao();
 
     public static AppDatabase getDatabase(Context context) {
         if (INSTANCE == null) {

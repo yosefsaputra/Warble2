@@ -67,4 +67,8 @@ public class PhilipsLight extends Light implements LightInterface {
             public void onFailure(Call<List<Object>> call, Throwable t) {}
         });
     }
+
+    public String getName() {
+        return this.name;
+    }
 }

@@ -24,7 +24,8 @@ public class Light {
     public String lightName;
     public long bridgeId;
 
-    public Light(String lightName) {
+    public Light(String lightName, long bridgeId) {
         this.lightName = lightName;
+        this.bridgeId = bridgeId;
     }
 }
