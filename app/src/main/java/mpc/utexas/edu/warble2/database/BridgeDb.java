@@ -8,16 +8,18 @@ import android.arch.persistence.room.PrimaryKey;
  */
 
 @Entity
-public class Bridge {
+public class BridgeDb {
     @PrimaryKey(autoGenerate = true)
-    public long id;
+    public long dbid;
     public String UUID;
     public String name;
+    public String category;
     public String base_url;
 
-    public Bridge(String UUID, String name, String base_url) {
+    public BridgeDb(String UUID, String name, String category, String base_url) {
         this.UUID = UUID;
         this.name = name;
+        this.category = category;
         this.base_url = base_url;
     }
 }

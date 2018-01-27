@@ -15,7 +15,9 @@ import java.util.List;
 
 import mpc.utexas.edu.warble2.R;
 import mpc.utexas.edu.warble2.things.Bridge;
+import mpc.utexas.edu.warble2.things.Light;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
+import mpc.utexas.edu.warble2.things.Thing;
 
 /**
  * Created by yosef on 11/28/2017.
@@ -39,18 +41,18 @@ public class SwitchFragment extends Fragment {
         new SetLightSwitch().execute();
     }
 
-    private class SetLightSwitch extends AsyncTask<Void, Void, List<PhilipsLight>> {
+    private class SetLightSwitch extends AsyncTask<Void, Void, List<Light>> {
         @Override
-        protected List<PhilipsLight> doInBackground(Void... params){
-            List<PhilipsLight> lights = new ArrayList<>();
+        protected List<Light> doInBackground(Void... params){
+            List<Light> lights = new ArrayList<>();
 
-            bridges = Bridge.getAllBridgesFromDatabase(getContext());
+            bridges = Bridge.getAllDb(getContext());
             for (Bridge bridge : bridges) {
-                List<PhilipsLight> lightsInBridge = new ArrayList<>();
+                List<Light> lightsInBridge = new ArrayList<>();
                 try {
-                    lightsInBridge = bridge.getAllPhilipsLights(getContext());
+                    lightsInBridge = bridge.discoverLights(getContext());
                 } catch (RuntimeException e) {
-                    Log.d(TAG, e.getMessage());
+                    Log.d(TAG, "exception", e);
                 }
 
                 lights.addAll(lightsInBridge);
@@ -60,16 +62,16 @@ public class SwitchFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(List<PhilipsLight> lights) {
+        protected void onPostExecute(List<Light> lights) {
             final Switch lightSwitch = (Switch) getView().findViewById(R.id.lightSwitch);
-            final List<PhilipsLight> lights2 = lights;
+            final List<Light> lights2 = lights;
 
             lightSwitch.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (lightSwitch.isChecked()) {
                         try {
-                            for (PhilipsLight light : lights2) {
+                            for (Light light : lights2) {
                                 light.setOn();
                             }
                         } catch (NullPointerException ex) {}
@@ -77,7 +79,7 @@ public class SwitchFragment extends Fragment {
                     }
                     else {
                         try {
-                            for (PhilipsLight light : lights2) {
+                            for (Light light : lights2) {
                                 light.setOff();
                             }
                         } catch (NullPointerException ex) {}

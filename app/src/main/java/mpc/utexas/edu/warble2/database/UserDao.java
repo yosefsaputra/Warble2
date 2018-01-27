@@ -14,17 +14,23 @@ import java.util.List;
 @Dao
 public interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void addUser(User user);
+    void addUser(UserDb userDb);
 
-    @Query("SELECT * FROM user WHERE id=:id")
-    List<User> getUser(long id);
+    @Query("SELECT * FROM UserDb")
+    List<UserDb> getAllUsers();
 
-    @Query("SELECT * FROM user WHERE bridgeId=:bridgeId")
-    List<User> getUsersForBridge(long bridgeId);
+    @Query("SELECT * FROM UserDb WHERE dbid=:dbid")
+    UserDb getUser(long dbid);
 
-    @Query("DELETE FROM user WHERE id=:id")
-    void delete(long id);
+    @Query("SELECT * FROM UserDb WHERE id=:id")
+    UserDb getUserById(String id);
 
-    @Query("DELETE FROM user")
+    @Query("SELECT * FROM UserDb WHERE bridgeDbid=:bridgeDbid")
+    List<UserDb> getUsersForBridge(long bridgeDbid);
+
+    @Query("DELETE FROM UserDb WHERE dbid=:dbid")
+    void delete(long dbid);
+
+    @Query("DELETE FROM UserDb")
     void deleteAllUsers();
 }

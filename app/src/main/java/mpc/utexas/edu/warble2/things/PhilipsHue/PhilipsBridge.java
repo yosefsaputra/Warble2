@@ -1,49 +1,17 @@
 package mpc.utexas.edu.warble2.things.PhilipsHue;
 
-import android.arch.persistence.db.SupportSQLiteOpenHelper;
-import android.arch.persistence.room.DatabaseConfiguration;
-import android.arch.persistence.room.InvalidationTracker;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.IntentSender;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.database.DatabaseErrorHandler;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.UserHandle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.Display;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import mpc.utexas.edu.warble2.database.AppDatabase;
-import mpc.utexas.edu.warble2.database.BridgeDao;
-import mpc.utexas.edu.warble2.database.User;
-import mpc.utexas.edu.warble2.database.UserDao;
+import mpc.utexas.edu.warble2.database.BridgeDb;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.BridgeInterface;
@@ -61,9 +27,6 @@ import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
 import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
 import mpc.utexas.edu.warble2.utils.SSDPDiscovery;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Created by yosef on 11/12/2017.
@@ -80,12 +43,12 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
 
     @Override
     public String getCapability(){
-        return "Return capabilities of Philips Bridge";
+        return "Return capabilities of Philips BridgeDb";
     }
 
     @Override
     public String getThings(){
-        return "Return things of Philips Bridge";
+        return "Return things of Philips BridgeDb";
     }
 
     public PhilipsHueService getService() {
@@ -152,5 +115,55 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
             bridge.setUUID(id);
             return bridge;
         }
+    }
+
+    public static List<PhilipsBridge> getAllPhilipsBridgesDb(Context context) {
+        Log.d(TAG, "Getting All from Database");
+        AppDatabase appDatabase = AppDatabase.getDatabase(context);
+        List<BridgeDb> dbBridgeDbs = appDatabase.bridgeDao().getAllBridgesByCategory(identifier);
+
+        List<PhilipsBridge> philipsBridges = new ArrayList<>();
+
+        for (BridgeDb dbBridgeDb : dbBridgeDbs) {
+            philipsBridges.add(new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.base_url));
+        }
+
+        return philipsBridges;
+    }
+
+    public List<PhilipsLight> discoverPhilipsLights(Context context) {
+        Log.d(TAG, "Discover Philips Lights");
+        final List<PhilipsUser> users = PhilipsUser.getAllDb(context);
+        final List<PhilipsLight> lights = new ArrayList<>();
+
+        ResponseBody responseBody;
+        try {
+            responseBody = service.getLights(users.get(0).getId()).execute().body();
+        } catch (IOException e) {
+            Log.e(TAG, "exception", e);
+            responseBody = null;
+        }
+
+        JSONObject jsonObject;
+        try {
+            JSONParser parser = new JSONParser();
+            jsonObject = (JSONObject) parser.parse(responseBody.string());
+        } catch (ParseException | IOException | NullPointerException e) {
+            Log.e(TAG, "exception", e);
+            jsonObject = new JSONObject();
+        }
+
+        List<String> lightNames = new ArrayList<>();
+        for (Object o : jsonObject.keySet()) {
+            String lightName = o.toString();
+            lightNames.add(lightName);
+        }
+
+        for (String lightName : lightNames) {
+            PhilipsLight philipsLight = new PhilipsLight(lightName, users.get(0), (PhilipsBridge) this);
+            lights.add(philipsLight);
+        }
+
+        return lights;
     }
 }
