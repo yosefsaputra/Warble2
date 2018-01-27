@@ -26,6 +26,7 @@ import mpc.utexas.edu.warble2.ui.BridgeViewActivity;
  */
 
 public class InfoFragment extends Fragment {
+    public static String TAG = "InfoFragment";
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

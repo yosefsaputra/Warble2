@@ -1,5 +1,6 @@
 package mpc.utexas.edu.warble2.ui.fragments;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Switch;
 
 import java.util.ArrayList;
@@ -16,8 +18,7 @@ import java.util.List;
 import mpc.utexas.edu.warble2.R;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.Light;
-import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
-import mpc.utexas.edu.warble2.things.Thing;
+import mpc.utexas.edu.warble2.ui.MainActivity;
 
 /**
  * Created by yosef on 11/28/2017.
@@ -25,9 +26,6 @@ import mpc.utexas.edu.warble2.things.Thing;
 
 public class SwitchFragment extends Fragment {
     private static String TAG = "SwitchFragment";
-
-    List<PhilipsLight> lights = new ArrayList<>();
-    List<Bridge> bridges;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -38,6 +36,16 @@ public class SwitchFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        Button switchRefreshButton = getView().findViewById(R.id.switchRefreshButton);
+        switchRefreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                getActivity().finish();
+                startActivity(intent);
+            }
+        });
+
         new SetLightSwitch().execute();
     }
 
@@ -45,6 +53,7 @@ public class SwitchFragment extends Fragment {
         @Override
         protected List<Light> doInBackground(Void... params){
             List<Light> lights = new ArrayList<>();
+            List<Bridge> bridges;
 
             bridges = Bridge.getAllDb(getContext());
             for (Bridge bridge : bridges) {

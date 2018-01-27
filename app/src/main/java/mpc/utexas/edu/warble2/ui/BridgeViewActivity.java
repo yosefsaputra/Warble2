@@ -1,6 +1,7 @@
 package mpc.utexas.edu.warble2.ui;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,16 +19,13 @@ import java.util.List;
 import mpc.utexas.edu.warble2.R;
 import mpc.utexas.edu.warble2.database.AppDatabase;
 import mpc.utexas.edu.warble2.database.BridgeDb;
-import mpc.utexas.edu.warble2.database.ThingDb;
-import mpc.utexas.edu.warble2.database.UserDb;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserRequest;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserResponse;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.Bridge;
-import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
+import mpc.utexas.edu.warble2.things.Light;
 import mpc.utexas.edu.warble2.things.Thing;
 import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
-import mpc.utexas.edu.warble2.users.User;
 import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -101,23 +99,39 @@ public class BridgeViewActivity extends AppCompatActivity {
             }
         });
 
-        ListView userList = (ListView) findViewById(R.id.userList);
+        ListView userListView = (ListView) findViewById(R.id.userList);
         List<PhilipsUser> users = PhilipsUser.getAllDb(getApplicationContext());
         List<String> userIds = new ArrayList<>();
         for (PhilipsUser user : users) {
             userIds.add(user.getId());
         }
         ArrayAdapter<String> usersListAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.user_layout, R.id.userNameTextView, userIds);
-        userList.setAdapter(usersListAdapter);
+        userListView.setAdapter(usersListAdapter);
 
+        new DiscoverLights().execute(bridge);
+    }
 
-        ListView lightList = (ListView) findViewById(R.id.lightList);
-        List<Thing> lights = bridge.discoverThings(getApplicationContext());
-        List<String> lightIds = new ArrayList<>();
-        for (Thing light : lights) {
-            lightIds.add(light.getName());
+    private class DiscoverLights extends AsyncTask<Bridge, Void, List<Light>> {
+        @Override
+        protected List<Light> doInBackground(Bridge... params){
+            return params[0].discoverLights(getApplicationContext());
         }
-        ArrayAdapter<String> lightsListAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.light_layout, R.id.lightTextView, lightIds);
-        lightList.setAdapter(lightsListAdapter);
+
+        @Override
+        protected void onPostExecute(List<Light> lights) {
+            // Update Lights ListView
+            ListView lightListView = (ListView) findViewById(R.id.lightList);
+            List<String> lightIds = new ArrayList<>();
+            for (Thing light : lights) {
+                lightIds.add(light.getName());
+            }
+            ArrayAdapter<String> lightsListAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.light_layout, R.id.lightTextView, lightIds);
+            lightListView.setAdapter(lightsListAdapter);
+
+            // Store Lights to database
+            for (Light light: lights) {
+                light.addDb(getApplicationContext());
+            }
+        }
     }
 }

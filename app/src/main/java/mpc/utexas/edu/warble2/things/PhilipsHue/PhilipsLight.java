@@ -76,6 +76,7 @@ public class PhilipsLight extends Light implements LightInterface {
 
     public PhilipsLight(String name, PhilipsUser user, PhilipsBridge parentBridge) {
         this.name = name;
+        this.id = name;
         this.parentBridge = parentBridge;
 
         this.service = parentBridge.getService();

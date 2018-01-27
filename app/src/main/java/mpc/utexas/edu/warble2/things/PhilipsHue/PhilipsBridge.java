@@ -23,6 +23,8 @@ import mpc.utexas.edu.warble2.database.BridgeDb;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.BridgeInterface;
+import mpc.utexas.edu.warble2.things.Light;
+import mpc.utexas.edu.warble2.things.Thing;
 import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
 import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
 import mpc.utexas.edu.warble2.utils.SSDPDiscovery;
@@ -42,13 +44,8 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
     }
 
     @Override
-    public String getCapability(){
-        return "Return capabilities of Philips BridgeDb";
-    }
-
-    @Override
-    public String getThings(){
-        return "Return things of Philips BridgeDb";
+    public String getCapability() {
+        return "Return capabilities of PhilipsBridge";
     }
 
     public PhilipsHueService getService() {
@@ -66,7 +63,7 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
         List<String> uuid_bridges = new ArrayList<>();
         for (String upnp_message : upnp_messages) {
             if (upnp_message.contains("IpBridge")) {
-                // System.out.println(upnp_message);
+                Log.d(TAG, upnp_message);
                 Pattern pattern = Pattern.compile("LOCATION: (.+?)(\\r*)(\\n)", Pattern.DOTALL | Pattern.MULTILINE);
                 Matcher matcher = pattern.matcher(upnp_message);
                 if (matcher.find()) {
@@ -102,12 +99,13 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
         Element device = rootElement.getChild("device", rootElement.getNamespace());
 
         String name = device.getChild("friendlyName", rootElement.getNamespace()).getText();
-        String modelName = device.getChild("modelName", rootElement.getNamespace()).getText();;
+        String modelName = device.getChild("modelName", rootElement.getNamespace()).getText();
+        ;
         String id = device.getChild("UDN", rootElement.getNamespace()).getText().replace("uuid:", "");
         String urlBase = URLBase.getText();
 
         if (modelName.contains("Philips")) {
-            PhilipsBridge bridge = new PhilipsBridge(name, id, urlBase);
+            Bridge bridge = new PhilipsBridge(name, id, urlBase);
             bridge.setUUID(id);
             return bridge;
         } else {
@@ -131,10 +129,11 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
         return philipsBridges;
     }
 
-    public List<PhilipsLight> discoverPhilipsLights(Context context) {
-        Log.d(TAG, "Discover Philips Lights");
+    @Override
+    public List<Thing> discoverThings(Context context) {
+        Log.d(TAG, "Discover Philips Things");
         final List<PhilipsUser> users = PhilipsUser.getAllDb(context);
-        final List<PhilipsLight> lights = new ArrayList<>();
+        final List<Thing> lights = new ArrayList<>();
 
         ResponseBody responseBody;
         try {
@@ -160,8 +159,48 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
         }
 
         for (String lightName : lightNames) {
-            PhilipsLight philipsLight = new PhilipsLight(lightName, users.get(0), (PhilipsBridge) this);
+            Thing philipsLight = new PhilipsLight(lightName, users.get(0), this);
             lights.add(philipsLight);
+        }
+
+        return lights;
+    }
+
+    @Override
+    public List<Light> discoverLights(Context context) {
+        Log.d(TAG, "Discover Philips Lights");
+        final List<PhilipsUser> users = PhilipsUser.getAllDb(context);
+        final List<Light> lights = new ArrayList<>();
+
+        if (!users.isEmpty()) {
+            ResponseBody responseBody;
+            try {
+                responseBody = service.getLights(users.get(0).getId()).execute().body();
+            } catch (IOException e) {
+                Log.e(TAG, "exception", e);
+                responseBody = null;
+            }
+
+            JSONObject jsonObject;
+            try {
+                JSONParser parser = new JSONParser();
+                jsonObject = (JSONObject) parser.parse(responseBody.string());
+            } catch (ParseException | IOException | NullPointerException e) {
+                Log.e(TAG, "exception", e);
+                jsonObject = new JSONObject();
+            }
+
+            List<String> lightNames = new ArrayList<>();
+            for (Object o : jsonObject.keySet()) {
+                String lightName = o.toString();
+                lightNames.add(lightName);
+            }
+
+            for (String lightName : lightNames) {
+                Light philipsLight = new PhilipsLight(lightName, users.get(0), this);
+                lights.add(philipsLight);
+            }
+        } else {
         }
 
         return lights;
