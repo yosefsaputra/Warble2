@@ -5,9 +5,17 @@ package mpc.utexas.edu.warble2.users;
  */
 
 public abstract class User {
-    protected String username;
+    public static String identifier = "UserDb";
+    public static String TAG = "UserDb";
+    protected String name;
+    protected String id;
+    protected long bridgeDbid;
 
-    public String getUsername(){
-        return this.username;
+    public String getName(){
+        return this.name;
+    }
+
+    public String getId(){
+        return this.id;
     }
 }

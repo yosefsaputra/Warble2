@@ -16,13 +16,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mpc.utexas.edu.warble2.R;
-import mpc.utexas.edu.warble2.database.Light;
-import mpc.utexas.edu.warble2.database.User;
+import mpc.utexas.edu.warble2.database.AppDatabase;
+import mpc.utexas.edu.warble2.database.BridgeDb;
+import mpc.utexas.edu.warble2.database.ThingDb;
+import mpc.utexas.edu.warble2.database.UserDb;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserRequest;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserResponse;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
+import mpc.utexas.edu.warble2.things.Thing;
+import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
+import mpc.utexas.edu.warble2.users.User;
 import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,8 +45,10 @@ public class BridgeViewActivity extends AppCompatActivity {
         Intent intent = getIntent();
         int bridgePosition = intent.getExtras().getInt("bridge_position");
 
-        List<Bridge> bridges = Bridge.getAllBridgesFromDatabase(getApplicationContext());
+        List<Bridge> bridges = Bridge.getAllDb(getApplicationContext());
         final Bridge bridge = bridges.get(bridgePosition);
+
+        final BridgeDb bridgeDb = AppDatabase.getDatabase(getApplicationContext()).bridgeDao().getBridgeByUUID(bridge.getUUID());
 
         service = PhilipsHueUtil.getService(bridge.getBaseUrl());
 
@@ -67,7 +74,8 @@ public class BridgeViewActivity extends AppCompatActivity {
                                 Log.d(TAG, userId);
                                 toast = Toast.makeText(getApplicationContext(), (CharSequence) userId, Toast.LENGTH_LONG);
 
-                                bridge.addUserToDatabase(getApplicationContext(), newUserNameEditText.getText().toString(), userId);
+                                PhilipsUser user = new PhilipsUser(newUserNameEditText.getText().toString(), userId, bridgeDb.dbid);
+                                user.addDb(getApplicationContext());
 
                                 finish();
                                 startActivity(getIntent());
@@ -77,7 +85,7 @@ public class BridgeViewActivity extends AppCompatActivity {
                                 Log.d(TAG, error_message);
                                 toast = Toast.makeText(getApplicationContext(), (CharSequence) error_message, Toast.LENGTH_LONG);
                             } else {
-                                String error_message = "Bridge does NOT respond correctly";
+                                String error_message = "BridgeDb does NOT respond correctly";
                                 Log.d(TAG, error_message);
                                 toast = Toast.makeText(getApplicationContext(), (CharSequence) error_message, Toast.LENGTH_LONG);
                             }
@@ -94,20 +102,20 @@ public class BridgeViewActivity extends AppCompatActivity {
         });
 
         ListView userList = (ListView) findViewById(R.id.userList);
-        List<User> users = bridge.getAllUsersFromDatabase(getApplicationContext());
+        List<PhilipsUser> users = PhilipsUser.getAllDb(getApplicationContext());
         List<String> userIds = new ArrayList<>();
-        for (User user: users) {
-            userIds.add(user.userId);
+        for (PhilipsUser user : users) {
+            userIds.add(user.getId());
         }
         ArrayAdapter<String> usersListAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.user_layout, R.id.userNameTextView, userIds);
         userList.setAdapter(usersListAdapter);
 
 
         ListView lightList = (ListView) findViewById(R.id.lightList);
-        List<Light> lights = Bridge.getLightsFromDatabase(getApplicationContext());
+        List<Thing> lights = bridge.discoverThings(getApplicationContext());
         List<String> lightIds = new ArrayList<>();
-        for (Light light: lights) {
-            lightIds.add(light.lightName);
+        for (Thing light : lights) {
+            lightIds.add(light.getName());
         }
         ArrayAdapter<String> lightsListAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.light_layout, R.id.lightTextView, lightIds);
         lightList.setAdapter(lightsListAdapter);

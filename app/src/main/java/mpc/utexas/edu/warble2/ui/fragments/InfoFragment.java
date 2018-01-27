@@ -61,17 +61,18 @@ public class InfoFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<Bridge> bridges) {
-            Bridge.updateBridgesToDatabase(getContext(), bridges);
-            Bridge.printBridgesFromDatabase(getContext());
+            for (Bridge bridge: bridges) {
+                bridge.updateDb(getContext());
+            }
 
             ListView bridgeListView = getView().findViewById(R.id.listBridgesView);
-            ArrayAdapter<Bridge> adapter = new BridgeArrayAdapter(getContext(), Bridge.getAllBridgesFromDatabase(getContext()));
+            ArrayAdapter<Bridge> adapter = new BridgeArrayAdapter(getContext(), Bridge.getAllDb(getContext()));
             bridgeListView.setAdapter(adapter);
             bridgeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Intent intent = new Intent(getActivity(), BridgeViewActivity.class);
-                    // List<Bridge> bridges = Bridge.getAllBridgesFromDatabase(getContext());
+                    // List<BridgeDb> bridges = BridgeDb.getAllBridgesFromDatabase(getContext());
                     intent.putExtra("bridge_position", i);
                     startActivity(intent);
                 }
