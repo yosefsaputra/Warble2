@@ -11,4 +11,12 @@ public abstract class Thing {
     protected String name;
     protected String id;
     protected Service service;
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getId() {
+        return this.id;
+    }
 }

@@ -1,5 +1,7 @@
 package mpc.utexas.edu.warble2.utils;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -13,6 +15,8 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class SSDPDiscovery {
+    private static final String TAG = "SSDPDiscovery";
+
     public static List<String> discover() {
         return discover(5000);
     }
@@ -42,16 +46,15 @@ public class SSDPDiscovery {
 
                 String msg = new String(receivePacket.getData(), 0, receivePacket.getLength());
                 upnp_messages.add(msg);
+                Log.d(TAG, msg);
 
                 // If sleep is not given, Philips HUE bridge is not found consistently. For some reasons.
                 try {
                     TimeUnit.MILLISECONDS.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                } catch (InterruptedException e) {}
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "exception", e);
         }
 
         return upnp_messages;

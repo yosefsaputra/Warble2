@@ -1,6 +1,7 @@
 package mpc.utexas.edu.warble2.ui.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,6 +10,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -17,12 +19,14 @@ import java.util.List;
 
 import mpc.utexas.edu.warble2.R;
 import mpc.utexas.edu.warble2.things.Bridge;
+import mpc.utexas.edu.warble2.ui.BridgeViewActivity;
 
 /**
  * Created by yosef on 11/28/2017.
  */
 
 public class InfoFragment extends Fragment {
+    public static String TAG = "InfoFragment";
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -58,9 +62,22 @@ public class InfoFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<Bridge> bridges) {
+            for (Bridge bridge: bridges) {
+                bridge.updateDb(getContext());
+            }
+
             ListView bridgeListView = getView().findViewById(R.id.listBridgesView);
-            ArrayAdapter<Bridge> adapter = new BridgeArrayAdapter(getContext(), bridges);
+            ArrayAdapter<Bridge> adapter = new BridgeArrayAdapter(getContext(), Bridge.getAllDb(getContext()));
             bridgeListView.setAdapter(adapter);
+            bridgeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Intent intent = new Intent(getActivity(), BridgeViewActivity.class);
+                    // List<BridgeDb> bridges = BridgeDb.getAllBridgesFromDatabase(getContext());
+                    intent.putExtra("bridge_position", i);
+                    startActivity(intent);
+                }
+            });
 
             SwipeRefreshLayout swipeRefreshLayout = getView().findViewById(R.id.listBridgesSwipeRefresh);
             swipeRefreshLayout.setRefreshing(false);
@@ -87,5 +104,4 @@ public class InfoFragment extends Fragment {
             return rowView;
         }
     }
-
 }

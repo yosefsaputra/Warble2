@@ -29,7 +29,7 @@ public interface PhilipsHueService {
     Call<ResponseBody> getInfo(@Path("user") String userId);
 
     @GET("/api/{user}/lights")
-    Call<List<PhilipsLight>> getLights(@Path("user") String userId);
+    Call<ResponseBody> getLights(@Path("user") String userId);
 
     @GET("/api/{user}/groups")
     Call<List<Object>> getGroups(@Path("user") String userId);
