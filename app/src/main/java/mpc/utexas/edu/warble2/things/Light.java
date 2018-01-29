@@ -1,15 +1,14 @@
 package mpc.utexas.edu.warble2.things;
 
-import android.content.Context;
+import mpc.utexas.edu.warble2.features.Location;
+import mpc.utexas.edu.warble2.features.LocationInterface;
 
 /**
  * Created by yosef on 11/7/2017.
  */
 
-public abstract class Light extends Thing implements LightInterface {
+public abstract class Light extends Thing implements LightInterface, LocationInterface {
     public static String identifier = "Light";
 
-    public abstract void addDb(Context context);
-    public abstract void updateDb(Context context);
-    public abstract void deleteDb(Context context);
+    protected Location location;
 }

@@ -8,9 +8,7 @@ import java.util.List;
 
 import mpc.utexas.edu.warble2.database.AppDatabase;
 import mpc.utexas.edu.warble2.database.BridgeDb;
-import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
-import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
 
 /**
  * Created by yosef on 11/12/2017.
@@ -19,13 +17,36 @@ import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
 public class Bridge extends Thing implements BridgeInterface {
     public static String identifier = "Bridge";
     public static String TAG = "Bridge";
-    protected String name;
-    protected String id;
-    protected String base_url;
+    protected String baseUrl;
     protected String UUID;
-    // TODO make it more general. Is this necessary?
-    private PhilipsHueService service;
 
+
+    // ======== [start Constructor methods] ========
+    public Bridge(String name, String id, String baseUrl) {
+        this.name = name;
+        this.id = id;
+        this.UUID = id;
+        this.baseUrl = baseUrl;
+    }
+    // ========= [end Constructor methods] =========
+
+
+    // ======== [start Getter Setter methods] ========
+    public String getUUID(){
+        return this.UUID;
+    }
+
+    public void setUUID(String UUID) {
+        this.UUID = UUID;
+    }
+
+    public String getBaseUrl(){
+        return this.baseUrl;
+    }
+    // ========= [end Getter Setter methods] =========
+
+
+    // ======== [start Static methods] ========
     public static List<Bridge> discover(){
         List<Bridge> bridges = new ArrayList<>();
 
@@ -33,11 +54,6 @@ public class Bridge extends Thing implements BridgeInterface {
         bridges.addAll(PhilipsBridge.discover());
 
         return bridges;
-    }
-
-    @Override
-    public String getCapability() {
-        return "Return Capabilities of Bridge";
     }
 
     public static List<Bridge> getAllDb(Context context) {
@@ -49,9 +65,9 @@ public class Bridge extends Thing implements BridgeInterface {
 
         for (BridgeDb dbBridgeDb : dbBridgeDbs) {
             if (dbBridgeDb.category.equals(PhilipsBridge.identifier)) {
-                bridges.add(new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.base_url));
+                bridges.add(new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl));
             } else {
-                bridges.add(new Bridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.base_url));
+                bridges.add(new Bridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl));
             }
         }
 
@@ -63,13 +79,18 @@ public class Bridge extends Thing implements BridgeInterface {
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
         appDatabase.bridgeDao().deleteAllBridges();
     }
+    // ========= [end Static methods] =========
 
+
+    // ======== [start DatabaseInterface implementation] ========
+    @Override
     public void addDb(Context context) {
         Log.d(TAG, "Add bridge to Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
-        appDatabase.bridgeDao().addBridge(new BridgeDb(this.UUID, this.name, this.getClass().getSimpleName(), this.base_url));
+        appDatabase.bridgeDao().addBridge(new BridgeDb(this.UUID, this.name, this.getClass().getSimpleName(), this.baseUrl));
     }
 
+    @Override
     public void updateDb(Context context) {
         Log.d(TAG, "Update bridge to Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
@@ -79,67 +100,50 @@ public class Bridge extends Thing implements BridgeInterface {
         if (existingBridgeDb == null) {
             this.addDb(context);
         } else {
-            appDatabase.bridgeDao().updateBridge(new BridgeDb(this.UUID, this.name, this.getClass().getSimpleName(), this.base_url));
+            appDatabase.bridgeDao().updateBridge(new BridgeDb(this.UUID, this.name, this.getClass().getSimpleName(), this.baseUrl));
         }
     }
 
+    @Override
     public void deleteDb(Context context) {
         Log.d(TAG, "Delete bridge to Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
         BridgeDb deleteBridgeDb = appDatabase.bridgeDao().getBridgeByUUID(this.UUID);
         appDatabase.bridgeDao().delete(deleteBridgeDb.dbid);
     }
+    // ========= [end DatabaseInterface implementation] =========
 
-    public Bridge(String name, String id, String base_url) {
-        this.name = name;
-        this.id = id;
-        this.UUID = id;
-        this.base_url = base_url;
 
-        this.service = PhilipsHueUtil.getService(base_url);
+    // ======== [start ThingInterface implementation] ========
+    @Override
+    public String getCapability() {
+        return "Return Capabilities of Bridge";
     }
+    // ========= [end ThingInterface implementation] =========
 
-    public String getUUID(){
-        return this.UUID;
-    }
 
-    public void setUUID(String UUID){
-        this.UUID = UUID;
-    }
-
-    public String getName(){
-        return this.name;
-    }
-
-    public void setName(String name){
-        this.name = name;
-    }
-
-    public String getBaseUrl(){
-        return this.base_url;
-    }
-
-    public void setBaseUrl(String base_url){
-        this.base_url = base_url;
-    }
-
-    // TODO to make the philips light to be general. Is this function located correctly?
+    // ======== [start BridgeInterface implementation] ========
     @Override
     public List<Thing> discoverThings(Context context) {
         Log.d(TAG, "Discover Things");
         return new ArrayList<>();
     }
 
+    @Override
     public List<Light> discoverLights(Context context) {
         Log.d(TAG, "Discover Lights");
         return new ArrayList<>();
     }
+    // ========= [end BridgeInterface implementation] =========
 
+
+    // ======== [start Others implementation] ========
     public String toString() {
         String string = "";
         string += String.format("Name: %s\n", this.name);
         string += String.format("ID: %s\n", this.name);
-        string += String.format("Base URL: %s\n", this.base_url);
+        string += String.format("Base URL: %s\n", this.baseUrl);
         return string;
     }
+    // ========= [end Others implementation] =========
 }

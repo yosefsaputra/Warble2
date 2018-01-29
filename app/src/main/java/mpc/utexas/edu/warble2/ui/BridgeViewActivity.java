@@ -24,6 +24,7 @@ import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserResponse;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.Light;
+import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
 import mpc.utexas.edu.warble2.things.Thing;
 import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
 import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
