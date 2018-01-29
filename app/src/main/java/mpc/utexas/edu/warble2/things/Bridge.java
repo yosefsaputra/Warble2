@@ -28,6 +28,15 @@ public class Bridge extends Thing implements BridgeInterface {
         this.UUID = id;
         this.baseUrl = baseUrl;
     }
+
+    public Bridge(String name, String id, String baseUrl, long dbid) {
+        this.name = name;
+        this.id = id;
+        this.UUID = id;
+        this.baseUrl = baseUrl;
+
+        this.dbid = dbid;
+    }
     // ========= [end Constructor methods] =========
 
 
@@ -65,9 +74,9 @@ public class Bridge extends Thing implements BridgeInterface {
 
         for (BridgeDb dbBridgeDb : dbBridgeDbs) {
             if (dbBridgeDb.category.equals(PhilipsBridge.identifier)) {
-                bridges.add(new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl));
+                bridges.add(new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl, dbBridgeDb.dbid));
             } else {
-                bridges.add(new Bridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl));
+                bridges.add(new Bridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl, dbBridgeDb.dbid));
             }
         }
 
@@ -79,6 +88,22 @@ public class Bridge extends Thing implements BridgeInterface {
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
         appDatabase.bridgeDao().deleteAllBridges();
     }
+
+    public static Bridge getBridgeById(Context context, long dbid) {
+        Log.d(TAG, "Getting Bridge by Id from Database");
+        AppDatabase appDatabase = AppDatabase.getDatabase(context);
+        BridgeDb dbBridgeDb = appDatabase.bridgeDao().getBridge(dbid);
+
+        Bridge bridge;
+
+        if (dbBridgeDb.category.equals(PhilipsBridge.identifier)) {
+            bridge = new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl, dbBridgeDb.dbid);
+        } else {
+            bridge = new Bridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl, dbBridgeDb.dbid);
+        }
+
+        return bridge;
+    }
     // ========= [end Static methods] =========
 
 
@@ -87,7 +112,7 @@ public class Bridge extends Thing implements BridgeInterface {
     public void addDb(Context context) {
         Log.d(TAG, "Add bridge to Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
-        appDatabase.bridgeDao().addBridge(new BridgeDb(this.UUID, this.name, this.getClass().getSimpleName(), this.baseUrl));
+        this.dbid = appDatabase.bridgeDao().addBridge(new BridgeDb(this.UUID, this.name, this.getClass().getSimpleName(), this.baseUrl));
     }
 
     @Override

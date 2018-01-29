@@ -51,9 +51,15 @@ public interface PhilipsHueService {
     @GET("/api/{user}/lights/{lightId}/state")
     Call<List<Object>> getLightState(@Path("user") String userId, @Path("lightId") int lightId);
 
+    @PUT("/api/{user}/lights/{lightId}")
+    @Headers({
+            "Content-Type: application/json"
+    })
+    Call<List<Object>> putLight(@Path("user") String userId, @Path("lightId") String lightId, @Body HashMap<String, Object> light);
+
     @PUT("/api/{user}/lights/{lightId}/state")
     @Headers({
             "Content-Type: application/json"
     })
-    Call<List<Object>> putLight(@Path("user") String userId, @Path("lightId") String lightId, @Body HashMap<String, Object> lightState);
+    Call<List<Object>> putLightState(@Path("user") String userId, @Path("lightId") String lightId, @Body HashMap<String, Object> lightState);
 }

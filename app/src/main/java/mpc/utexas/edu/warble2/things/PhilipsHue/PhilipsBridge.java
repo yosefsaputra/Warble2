@@ -45,6 +45,13 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
         super(name, id, baseUrl);
         this.service = PhilipsHueUtil.getService(baseUrl);
     }
+
+    public PhilipsBridge(String name, String id, String baseUrl, long dbid) {
+        super(name, id, baseUrl);
+        this.service = PhilipsHueUtil.getService(baseUrl);
+
+        this.dbid = dbid;
+    }
     // ======== [end Constructor methods] ========
 
 
@@ -216,9 +223,17 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
                 String lightId = o.toString();
                 JSONObject details = (JSONObject) jsonObject.get(o);
                 String lightStringLocation = (String) details.get("name");
-                // lightIds.add(lightId);
-                // lightStringLocations.add(lightStringLocation);
-                Light philipsLight = new PhilipsLight(lightId, LocationConverter.toLocation(lightStringLocation), users.get(0), this);
+
+                String regex = "(\\w+,)(\\d+,\\d+)";
+                Pattern r = Pattern.compile(regex);
+                Matcher m = r.matcher(lightStringLocation);
+
+                Light philipsLight;
+                if (m.find()) {
+                    philipsLight = new PhilipsLight(lightId, LocationConverter.toLocation(String.format("(%s)", m.group(2))), users.get(0), this);
+                } else {
+                    philipsLight = new PhilipsLight(lightId, LocationConverter.toLocation(null), users.get(0), this);
+                }
                 lights.add(philipsLight);
             }
 

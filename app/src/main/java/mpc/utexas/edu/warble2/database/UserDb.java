@@ -23,11 +23,13 @@ public class UserDb {
     public long dbid;
     public String name;
     public String id;
+    public String category;
     public long bridgeDbid;
 
-    public UserDb(String name, String id, long bridgeDbid) {
+    public UserDb(String name, String id, String category, long bridgeDbid) {
         this.name = name;
         this.id = id;
+        this.category = category;
         this.bridgeDbid = bridgeDbid;
     }
 }
