@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 import mpc.utexas.edu.warble2.database.AppDatabase;
 import mpc.utexas.edu.warble2.database.BridgeDb;
+import mpc.utexas.edu.warble2.database.LocationConverter;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.BridgeInterface;
@@ -36,22 +37,32 @@ import okhttp3.ResponseBody;
 
 public class PhilipsBridge extends Bridge implements BridgeInterface {
     public static String identifier = "PhilipsBridge";
-    private PhilipsHueService service;
+    protected PhilipsHueService service;
 
-    public PhilipsBridge(String name, String id, String base_url) {
-        super(name, id, base_url);
-        this.service = PhilipsHueUtil.getService(base_url);
+
+    // ======= [start Constructor methods] =======
+    public PhilipsBridge(String name, String id, String baseUrl) {
+        super(name, id, baseUrl);
+        this.service = PhilipsHueUtil.getService(baseUrl);
     }
 
-    @Override
-    public String getCapability() {
-        return "Return capabilities of PhilipsBridge";
-    }
+    public PhilipsBridge(String name, String id, String baseUrl, long dbid) {
+        super(name, id, baseUrl);
+        this.service = PhilipsHueUtil.getService(baseUrl);
 
-    public PhilipsHueService getService() {
-        return service;
+        this.dbid = dbid;
     }
+    // ======== [end Constructor methods] ========
 
+
+    // ======= [start Getter Setter implementation] =======
+     public PhilipsHueService getService() {
+         return this.service;
+     }
+    // ======== [end Getter Setter implementation] ========
+
+
+    // ======== [start Static methods] ========
     // TODO Make the discovery simpler and neater
     public static List<Bridge> discover() {
         int duration_microseconds = 5000;
@@ -123,12 +134,23 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
         List<PhilipsBridge> philipsBridges = new ArrayList<>();
 
         for (BridgeDb dbBridgeDb : dbBridgeDbs) {
-            philipsBridges.add(new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.base_url));
+            philipsBridges.add(new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl));
         }
 
         return philipsBridges;
     }
+    // ========= [end Static methods] =========
 
+
+    // ======= [start ThingInterface implementation] =======
+    @Override
+    public String getCapability() {
+        return "Return capabilities of PhilipsBridge";
+    }
+    // ======== [end ThingInterface implementation] ========
+
+
+    // ======== [start BridgeInterface methods] ========
     @Override
     public List<Thing> discoverThings(Context context) {
         Log.d(TAG, "Discover Philips Things");
@@ -152,16 +174,21 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
             jsonObject = new JSONObject();
         }
 
-        List<String> lightNames = new ArrayList<>();
+        // List<String> lightNames = new ArrayList<>();
         for (Object o : jsonObject.keySet()) {
-            String lightName = o.toString();
-            lightNames.add(lightName);
-        }
-
-        for (String lightName : lightNames) {
-            Thing philipsLight = new PhilipsLight(lightName, users.get(0), this);
+            String lightId = o.toString();
+            JSONObject details = (JSONObject) jsonObject.get(o);
+            String lightStringLocation = (String) details.get("name");
+            // lightIds.add(lightId);
+            // lightStringLocations.add(lightStringLocation);
+            Light philipsLight = new PhilipsLight(lightId, LocationConverter.toLocation(lightStringLocation), users.get(0), this);
             lights.add(philipsLight);
         }
+
+        // for (String lightName : lightNames) {
+        //     Thing philipsLight = new PhilipsLight(lightName, users.get(0), this);
+        //     lights.add(philipsLight);
+        // }
 
         return lights;
     }
@@ -190,19 +217,34 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
                 jsonObject = new JSONObject();
             }
 
-            List<String> lightNames = new ArrayList<>();
+            // List<String> lightIds = new ArrayList<>();
+            // List<String> lightStringLocations = new ArrayList<>();
             for (Object o : jsonObject.keySet()) {
-                String lightName = o.toString();
-                lightNames.add(lightName);
-            }
+                String lightId = o.toString();
+                JSONObject details = (JSONObject) jsonObject.get(o);
+                String lightStringLocation = (String) details.get("name");
 
-            for (String lightName : lightNames) {
-                Light philipsLight = new PhilipsLight(lightName, users.get(0), this);
+                String regex = "(\\w+,)(\\d+,\\d+)";
+                Pattern r = Pattern.compile(regex);
+                Matcher m = r.matcher(lightStringLocation);
+
+                Light philipsLight;
+                if (m.find()) {
+                    philipsLight = new PhilipsLight(lightId, LocationConverter.toLocation(String.format("(%s)", m.group(2))), users.get(0), this);
+                } else {
+                    philipsLight = new PhilipsLight(lightId, LocationConverter.toLocation(null), users.get(0), this);
+                }
                 lights.add(philipsLight);
             }
+
+            // for (String lightId : lightIds) {
+            //     Light philipsLight = new PhilipsLight(lightId, users.get(0), this);
+            //     lights.add(philipsLight);
+            // }
         } else {
         }
 
         return lights;
     }
+    // ========= [end BridgeInterface methods] =========
 }

@@ -9,13 +9,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import mpc.utexas.edu.warble2.R;
+import mpc.utexas.edu.warble2.database.LocationConverter;
+import mpc.utexas.edu.warble2.features.Location;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.Light;
 import mpc.utexas.edu.warble2.ui.MainActivity;
@@ -26,6 +32,9 @@ import mpc.utexas.edu.warble2.ui.MainActivity;
 
 public class SwitchFragment extends Fragment {
     private static String TAG = "SwitchFragment";
+
+    private static Location currentLocation = new Location(0, 0);
+    private static double distance = 3.0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,7 +55,13 @@ public class SwitchFragment extends Fragment {
             }
         });
 
+        // Set Light Switch
         new SetLightSwitch().execute();
+
+        // Set Current Location Views
+        setCurrentLocationViews();
+
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     private class SetLightSwitch extends AsyncTask<Void, Void, List<Light>> {
@@ -67,7 +82,24 @@ public class SwitchFragment extends Fragment {
                 lights.addAll(lightsInBridge);
             }
 
-            return lights;
+            List<Light> filteredLights = new ArrayList<>();
+
+            if (distance > 0.0) {
+                for (Light light : lights) {
+                    int xDiff = currentLocation.getxCoordinate() - light.getLocation().getxCoordinate();
+                    int yDiff = currentLocation.getyCoordinate() - light.getLocation().getyCoordinate();
+                    double lightDistance = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+
+                    Log.d(TAG, "TAG: lightDistance = " + lightDistance);
+                    if (lightDistance <= distance) {
+                        filteredLights.add(light);
+                    }
+                }
+            } else {
+                filteredLights.addAll(lights);
+            }
+
+            return filteredLights;
         }
 
         @Override
@@ -96,5 +128,26 @@ public class SwitchFragment extends Fragment {
                 }
             });
         }
+    }
+
+    private void setCurrentLocationViews() {
+        TextView currentLocationTextView = (TextView) getView().findViewById(R.id.currentLocationTextView);
+        currentLocationTextView.setText((CharSequence) LocationConverter.toString(currentLocation));
+
+        Button newCurrentLocationSubmitButton = (Button) getView().findViewById(R.id.newCurrentLocationSubmitButton);
+        newCurrentLocationSubmitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText newCurrentLocationEditText = (EditText) getView().findViewById(R.id.newCurrentLocationEditText);
+                currentLocation = LocationConverter.toLocation(String.format("(%s)", newCurrentLocationEditText.getText()));
+
+                TextView currentLocationTextView = (TextView) getView().findViewById(R.id.currentLocationTextView);
+                currentLocationTextView.setText((CharSequence) LocationConverter.toString(currentLocation));
+
+                newCurrentLocationEditText.setText("");
+
+                new SetLightSwitch().execute();
+            }
+        });
     }
 }

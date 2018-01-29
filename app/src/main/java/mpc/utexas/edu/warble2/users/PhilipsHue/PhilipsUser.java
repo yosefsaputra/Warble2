@@ -24,7 +24,7 @@ public class PhilipsUser extends User {
         List<PhilipsUser> users = new ArrayList<>();
 
         for (UserDb dbuser: dbusers) {
-            users.add(new PhilipsUser(dbuser.name, dbuser.id, dbuser.bridgeDbid));
+            users.add(new PhilipsUser(dbuser.name, dbuser.id, dbuser.category, dbuser.bridgeDbid));
         }
 
         return users;
@@ -37,16 +37,17 @@ public class PhilipsUser extends User {
         appDatabase.userDao().deleteAllUsers();
     }
 
-    public PhilipsUser(String name, String id, long bridgeDbid) {
+    public PhilipsUser(String name, String id, String category, long bridgeDbid) {
         this.name = name;
         this.id = id;
+        this.category = category;
         this.bridgeDbid = bridgeDbid;
     }
 
     public void addDb(Context context) {
         Log.d(TAG, "Add PhilipsUser to Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
-        appDatabase.userDao().addUser(new UserDb(this.name, this.id, this.bridgeDbid));
+        appDatabase.userDao().addUser(new UserDb(this.name, this.id, this.category, this.bridgeDbid));
     }
 
     public void updateDb(Context context) {

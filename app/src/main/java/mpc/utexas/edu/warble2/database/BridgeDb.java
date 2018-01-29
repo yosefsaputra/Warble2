@@ -14,12 +14,12 @@ public class BridgeDb {
     public String UUID;
     public String name;
     public String category;
-    public String base_url;
+    public String baseUrl;
 
-    public BridgeDb(String UUID, String name, String category, String base_url) {
+    public BridgeDb(String UUID, String name, String category, String baseUrl) {
         this.UUID = UUID;
         this.name = name;
         this.category = category;
-        this.base_url = base_url;
+        this.baseUrl = baseUrl;
     }
 }
