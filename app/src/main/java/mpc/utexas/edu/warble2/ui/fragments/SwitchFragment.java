@@ -3,6 +3,7 @@ package mpc.utexas.edu.warble2.ui.fragments;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Pattern;
 
 import mpc.utexas.edu.warble2.R;
@@ -56,12 +59,34 @@ public class SwitchFragment extends Fragment {
         });
 
         // Set Light Switch
-        new SetLightSwitch().execute();
+        callAsyncTask();
 
         // Set Current Location Views
         setCurrentLocationViews();
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    private void callAsyncTask() {
+        final Handler handler = new Handler();
+        Timer timer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            SetLightSwitch setLightSwitch = new SetLightSwitch();
+                            setLightSwitch.execute();
+                        } catch (Exception e) {
+                            Log.d(TAG, "exception", e);
+                        }
+                    }
+                });
+            }
+        };
+        timer.schedule(doAsynchronousTask, 0, 1000);
     }
 
     private class SetLightSwitch extends AsyncTask<Void, Void, List<Light>> {
