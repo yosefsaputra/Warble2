@@ -19,6 +19,9 @@ public interface UserDao {
     @Query("SELECT * FROM UserDb")
     List<UserDb> getAllUsers();
 
+    @Query("SELECT * FROM UserDb WHERE category=:category")
+    List<UserDb> getAllUsersByCategory(String category);
+
     @Query("SELECT * FROM UserDb WHERE dbid=:dbid")
     UserDb getUser(long dbid);
 
@@ -33,4 +36,7 @@ public interface UserDao {
 
     @Query("DELETE FROM UserDb")
     void deleteAllUsers();
+
+    @Query("DELETE FROM UserDb WHERE category=:category")
+    void deleteAllUsersByCategory(String category);
 }

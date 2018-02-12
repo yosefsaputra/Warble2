@@ -14,8 +14,8 @@ import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
  */
 
 public abstract class User {
-    public static String identifier = "UserDb";
-    public static String TAG = "UserDb";
+    public static String identifier = "User";
+    public static String TAG = "User";
     protected String name;
     protected String id;
     protected String category;

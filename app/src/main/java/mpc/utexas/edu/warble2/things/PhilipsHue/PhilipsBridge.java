@@ -47,10 +47,8 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
     }
 
     public PhilipsBridge(String name, String id, String baseUrl, long dbid) {
-        super(name, id, baseUrl);
+        super(name, id, baseUrl, dbid);
         this.service = PhilipsHueUtil.getService(baseUrl);
-
-        this.dbid = dbid;
     }
     // ======== [end Constructor methods] ========
 
@@ -65,7 +63,7 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
     // ======== [start Static methods] ========
     // TODO Make the discovery simpler and neater
     public static List<Bridge> discover() {
-        int duration_microseconds = 5000;
+        int duration_microseconds = 2000;
         List<String> upnp_messages;
 
         upnp_messages = SSDPDiscovery.discover(duration_microseconds);

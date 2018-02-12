@@ -9,6 +9,7 @@ import java.util.List;
 import mpc.utexas.edu.warble2.database.AppDatabase;
 import mpc.utexas.edu.warble2.database.BridgeDb;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
+import mpc.utexas.edu.warble2.things.Wink.WinkBridge;
 
 /**
  * Created by yosef on 11/12/2017.
@@ -61,6 +62,7 @@ public class Bridge extends Thing implements BridgeInterface {
 
         // TODO Add more bridge children, if necessary. Find idea how to do this better because it is too detailed.
         bridges.addAll(PhilipsBridge.discover());
+        bridges.addAll(WinkBridge.discover());
 
         return bridges;
     }
@@ -75,6 +77,8 @@ public class Bridge extends Thing implements BridgeInterface {
         for (BridgeDb dbBridgeDb : dbBridgeDbs) {
             if (dbBridgeDb.category.equals(PhilipsBridge.identifier)) {
                 bridges.add(new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl, dbBridgeDb.dbid));
+            } else if (dbBridgeDb.category.equals(WinkBridge.identifier)) {
+                bridges.add(new WinkBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.dbid));
             } else {
                 bridges.add(new Bridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl, dbBridgeDb.dbid));
             }

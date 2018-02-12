@@ -15,11 +15,13 @@ import mpc.utexas.edu.warble2.users.User;
  */
 
 public class PhilipsUser extends User {
+    public static String identifier = "PhilipsUser";
+    public static String TAG = "PhilipsUser";
+
     public static List<PhilipsUser> getAllDb(Context context) {
         Log.d(TAG, "Getting All PhilipsUsers from Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
-        // TODO Filter for only PhilipsUsers
-        List<UserDb> dbusers = appDatabase.userDao().getAllUsers();
+        List<UserDb> dbusers = appDatabase.userDao().getAllUsersByCategory(PhilipsUser.identifier);
 
         List<PhilipsUser> users = new ArrayList<>();
 
@@ -33,8 +35,7 @@ public class PhilipsUser extends User {
     public static void deleteAllDb(Context context) {
         Log.d(TAG, "Delete All PhilipsUsers from Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
-        // TODO Delete only PhilipsUsers
-        appDatabase.userDao().deleteAllUsers();
+        appDatabase.userDao().deleteAllUsersByCategory(PhilipsUser.identifier);
     }
 
     public PhilipsUser(String name, String id, String category, long bridgeDbid) {
@@ -47,7 +48,7 @@ public class PhilipsUser extends User {
     public void addDb(Context context) {
         Log.d(TAG, "Add PhilipsUser to Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
-        appDatabase.userDao().addUser(new UserDb(this.name, this.id, this.category, this.bridgeDbid));
+        appDatabase.userDao().addUser(new UserDb(this.name, this.id, "", this.category, "", "", this.bridgeDbid));
     }
 
     public void updateDb(Context context) {

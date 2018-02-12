@@ -97,6 +97,7 @@ public class SwitchFragment extends Fragment {
 
             bridges = Bridge.getAllDb(getContext());
             for (Bridge bridge : bridges) {
+                Log.d(TAG, bridge.getName());
                 List<Light> lightsInBridge = new ArrayList<>();
                 try {
                     lightsInBridge = bridge.discoverLights(getContext());

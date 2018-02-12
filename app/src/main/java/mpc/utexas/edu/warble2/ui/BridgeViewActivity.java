@@ -106,6 +106,7 @@ public class BridgeViewActivity extends AppCompatActivity {
 
         // Update Users ListView
         ListView userListView = (ListView) findViewById(R.id.userList);
+        // TODO Bug: This should only list down the users belong to a specific bridge
         List<PhilipsUser> users = PhilipsUser.getAllDb(getApplicationContext());
         List<String> userIds = new ArrayList<>();
         for (PhilipsUser user : users) {
