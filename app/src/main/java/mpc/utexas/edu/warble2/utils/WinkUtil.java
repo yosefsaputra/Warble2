@@ -28,13 +28,12 @@ public class WinkUtil {
 
     public static List<Thing> discoverThings() {
         WinkService service = WinkUtil.getService();
-        String accessToken = "gH0b8JfsOrmO8H0ix43CQ1LrSdQ5dkMR";
 
         List<Thing> things = new ArrayList<>();
 
         try {
             // TODO handle if HTTP response is error
-            GetThingsResponse getThingsResponse = service.getThings("bearer " + accessToken).execute().body();
+            GetThingsResponse getThingsResponse = service.getThings("bearer " + WinkUtil.accessToken).execute().body();
 
             for (GetThingsResponse.Thing thing : getThingsResponse.getData()) {
                 if (thing.getName().contains("Light") | thing.getName().contains("light")) {

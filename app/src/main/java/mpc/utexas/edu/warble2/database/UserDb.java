@@ -29,16 +29,6 @@ public class UserDb {
     public String refreshToken;
     public long bridgeDbid;
 
-//    public UserDb(String name, String id, String category, long bridgeDbid) {
-//        this.name = name;
-//        this.id = id;
-//        this.secretId = null;
-//        this.category = category;
-//        this.accessToken = null;
-//        this.refreshToken = null;
-//        this.bridgeDbid = bridgeDbid;
-//    }
-
     public UserDb(String name, String id, String secretId, String category, String accessToken, String refreshToken, long bridgeDbid) {
         this.name = name;
         this.id = id;

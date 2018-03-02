@@ -15,7 +15,7 @@ import mpc.utexas.edu.warble2.things.Wink.WinkBridge;
  * Created by yosef on 11/12/2017.
  */
 
-public class Bridge extends Thing implements BridgeInterface {
+public abstract class Bridge extends Thing implements BridgeInterface {
     public static String identifier = "Bridge";
     public static String TAG = "Bridge";
     protected String baseUrl;
@@ -79,8 +79,6 @@ public class Bridge extends Thing implements BridgeInterface {
                 bridges.add(new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl, dbBridgeDb.dbid));
             } else if (dbBridgeDb.category.equals(WinkBridge.identifier)) {
                 bridges.add(new WinkBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.dbid));
-            } else {
-                bridges.add(new Bridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl, dbBridgeDb.dbid));
             }
         }
 
@@ -98,12 +96,12 @@ public class Bridge extends Thing implements BridgeInterface {
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
         BridgeDb dbBridgeDb = appDatabase.bridgeDao().getBridge(dbid);
 
-        Bridge bridge;
+        Bridge bridge = null;
 
         if (dbBridgeDb.category.equals(PhilipsBridge.identifier)) {
             bridge = new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl, dbBridgeDb.dbid);
-        } else {
-            bridge = new Bridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl, dbBridgeDb.dbid);
+        } else if (dbBridgeDb.category.equals(WinkBridge.identifier)) {
+            bridge = new WinkBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.dbid);
         }
 
         return bridge;
@@ -135,7 +133,7 @@ public class Bridge extends Thing implements BridgeInterface {
 
     @Override
     public void deleteDb(Context context) {
-        Log.d(TAG, "Delete bridge to Database");
+        Log.d(TAG, "Delete bridge from Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
         BridgeDb deleteBridgeDb = appDatabase.bridgeDao().getBridgeByUUID(this.UUID);
         appDatabase.bridgeDao().delete(deleteBridgeDb.dbid);
@@ -152,27 +150,18 @@ public class Bridge extends Thing implements BridgeInterface {
 
 
     // ======== [start BridgeInterface implementation] ========
-    @Override
-    public List<Thing> discoverThings(Context context) {
-        Log.d(TAG, "Discover Things");
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<Light> discoverLights(Context context) {
-        Log.d(TAG, "Discover Lights");
-        return new ArrayList<>();
-    }
+    public abstract List<Thing> discoverThings(Context context);
+    public abstract List<Light> discoverLights(Context context);
     // ========= [end BridgeInterface implementation] =========
 
 
-    // ======== [start Others implementation] ========
+    // ======== [start Others methods] ========
     public String toString() {
         String string = "";
-        string += String.format("Name: %s\n", this.name);
-        string += String.format("ID: %s\n", this.name);
+        string += String.format("Name: %s, ", this.name);
+        string += String.format("ID: %s, ", this.name);
         string += String.format("Base URL: %s\n", this.baseUrl);
         return string;
     }
-    // ========= [end Others implementation] =========
+    // ========= [end Others methods] =========
 }

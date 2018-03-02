@@ -45,4 +45,11 @@ public class ThingDb {
         this.bridgeDbid = bridgeDbid;
         this.userDbid = userDbid;
     }
+
+    public String toString() {
+        String string = "";
+        string += String.format("Name: %s, ", this.name);
+        string += String.format("Category: %s\n", this.category);
+        return string;
+    }
 }

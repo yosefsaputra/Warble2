@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +16,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mpc.utexas.edu.warble2.R;
 import mpc.utexas.edu.warble2.things.Bridge;
+import mpc.utexas.edu.warble2.things.Thing;
 import mpc.utexas.edu.warble2.ui.BridgeViewActivity;
 
 /**
@@ -57,15 +60,19 @@ public class InfoFragment extends Fragment {
     public class BridgeDiscovery extends AsyncTask<Void, Void, List<Bridge>> {
         @Override
         protected List<Bridge> doInBackground(Void... params){
+            // Clear DB
+            Bridge.deleteAllDb(getContext());
             return Bridge.discover();
         }
 
         @Override
         protected void onPostExecute(List<Bridge> bridges) {
+            // Update DB
             for (Bridge bridge: bridges) {
                 bridge.updateDb(getContext());
             }
 
+            // Update List Bridge List View
             ListView bridgeListView = getView().findViewById(R.id.listBridgesView);
             ArrayAdapter<Bridge> adapter = new BridgeArrayAdapter(getContext(), Bridge.getAllDb(getContext()));
             bridgeListView.setAdapter(adapter);
@@ -81,6 +88,33 @@ public class InfoFragment extends Fragment {
 
             SwipeRefreshLayout swipeRefreshLayout = getView().findViewById(R.id.listBridgesSwipeRefresh);
             swipeRefreshLayout.setRefreshing(false);
+
+            // Discover Things
+            new ThingDiscovery().execute();
+        }
+    }
+
+    public class ThingDiscovery extends AsyncTask<Bridge, Void, List<Thing>> {
+        @Override
+        protected List<Thing> doInBackground(Bridge... bridges) {
+            // Clear DB
+            Thing.deleteAllDb(getContext());
+
+            // Discover Things from each Bridge
+            List<Thing> things = new ArrayList<>();
+            for (Bridge bridge: bridges) {
+                things.addAll(bridge.discoverThings(getContext()));
+            }
+            return things;
+        }
+
+        @Override
+        protected void onPostExecute(List<Thing> things) {
+            // Update to DB
+            for (Thing thing: things) {
+                thing.updateDb(getContext());
+                Log.d(TAG, thing.toString());
+            }
         }
     }
 

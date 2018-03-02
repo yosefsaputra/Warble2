@@ -37,6 +37,7 @@ import okhttp3.ResponseBody;
 
 public class PhilipsBridge extends Bridge implements BridgeInterface {
     public static String identifier = "PhilipsBridge";
+    public static String TAG = "PhilipsBridge";
     protected PhilipsHueService service;
 
 
@@ -109,7 +110,7 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
 
         String name = device.getChild("friendlyName", rootElement.getNamespace()).getText();
         String modelName = device.getChild("modelName", rootElement.getNamespace()).getText();
-        ;
+
         String id = device.getChild("UDN", rootElement.getNamespace()).getText().replace("uuid:", "");
         String urlBase = URLBase.getText();
 
@@ -118,9 +119,7 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
             bridge.setUUID(id);
             return bridge;
         } else {
-            Bridge bridge = new Bridge(name, id, urlBase);
-            bridge.setUUID(id);
-            return bridge;
+            return null;
         }
     }
 

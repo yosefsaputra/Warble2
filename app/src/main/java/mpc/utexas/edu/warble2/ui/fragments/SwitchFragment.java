@@ -86,7 +86,7 @@ public class SwitchFragment extends Fragment {
                 });
             }
         };
-        timer.schedule(doAsynchronousTask, 0, 1000);
+        timer.schedule(doAsynchronousTask, 0, 10000);
     }
 
     private class SetLightSwitch extends AsyncTask<Void, Void, List<Light>> {
