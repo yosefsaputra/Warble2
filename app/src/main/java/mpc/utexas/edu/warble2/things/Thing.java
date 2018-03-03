@@ -16,6 +16,7 @@ import mpc.utexas.edu.warble2.services.Service;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
 import mpc.utexas.edu.warble2.things.Wink.WinkBridge;
+import mpc.utexas.edu.warble2.things.Wink.WinkLight;
 import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
 import mpc.utexas.edu.warble2.users.User;
 
@@ -50,9 +51,14 @@ public abstract class Thing implements DatabaseInterface {
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
         ThingDb thingDb = appDatabase.thingDao().getThing(dbid);
 
-        if (thingDb.category.equals(PhilipsLight.identifier)) {
-            return new PhilipsLight(thingDb.name, thingDb.location, null, (PhilipsBridge) Bridge.getBridgeById(context, thingDb.bridgeDbid), dbid);
+        if (thingDb != null) {
+            if (thingDb.category.equals(PhilipsLight.identifier)) {
+                return new PhilipsLight(thingDb.name, thingDb.location, null, (PhilipsBridge) Bridge.getBridgeById(context, thingDb.bridgeDbid), dbid);
+            } else if (thingDb.category.equals(WinkLight.identifier)) {
+                return new WinkLight(thingDb.name, thingDb.id, thingDb.location, (WinkBridge) Bridge.getBridgeById(context, thingDb.bridgeDbid), dbid);
+            }
         }
+
         return null;
     }
 
@@ -66,7 +72,9 @@ public abstract class Thing implements DatabaseInterface {
     // ======== [start Others methods] ========
     public String toString() {
         String string = "";
-        string += String.format("Name: %s\n", this.name);
+        string += String.format("Name: %s, ", this.name);
+        string += String.format("Id: %s, ", this.id);
+        string += String.format("Dbid: %s, ", this.dbid);
         return string;
     }
     // ========= [end Others methods] =========

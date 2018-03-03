@@ -86,7 +86,7 @@ public class SwitchFragment extends Fragment {
                 });
             }
         };
-        timer.schedule(doAsynchronousTask, 0, 10000);
+        timer.schedule(doAsynchronousTask, 0, 1000);
     }
 
     private class SetLightSwitch extends AsyncTask<Void, Void, List<Light>> {
@@ -112,6 +112,7 @@ public class SwitchFragment extends Fragment {
 
             if (distance > 0.0) {
                 for (Light light : lights) {
+                    System.out.println(light.toString());
                     int xDiff = currentLocation.getxCoordinate() - light.getLocation().getxCoordinate();
                     int yDiff = currentLocation.getyCoordinate() - light.getLocation().getyCoordinate();
                     double lightDistance = Math.sqrt(xDiff * xDiff + yDiff * yDiff);

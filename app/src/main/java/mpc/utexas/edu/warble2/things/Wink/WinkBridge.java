@@ -3,12 +3,16 @@ package mpc.utexas.edu.warble2.things.Wink;
 import android.content.Context;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import mpc.utexas.edu.warble2.database.AppDatabase;
 import mpc.utexas.edu.warble2.database.BridgeDb;
+import mpc.utexas.edu.warble2.database.LocationConverter;
+import mpc.utexas.edu.warble2.features.Location;
 import mpc.utexas.edu.warble2.services.Oauth2.Oauth2Service;
+import mpc.utexas.edu.warble2.services.Wink.GetThingsResponse;
 import mpc.utexas.edu.warble2.services.Wink.WinkService;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.BridgeInterface;
@@ -51,7 +55,7 @@ public class WinkBridge extends Bridge implements BridgeInterface {
         Log.d(TAG, "Discover Wink Bridges");
         List<Bridge> bridges = new ArrayList<>();
 
-        for (Thing thing: WinkUtil.discoverThings()) {
+        for (Thing thing: WinkUtil.discoverBridges()) {
             if (thing instanceof WinkBridge) {
                 bridges.add((WinkBridge) thing);
             }
@@ -79,7 +83,6 @@ public class WinkBridge extends Bridge implements BridgeInterface {
         BridgeDb dbBridgeDb = appDatabase.bridgeDao().getBridge(dbid);
 
         WinkBridge bridge = null;
-
         if (dbBridgeDb.category.equals(WinkBridge.identifier)) {
             bridge = new WinkBridge(dbBridgeDb.name, dbBridgeDb.UUID, PhilipsUser.getUserByDbid(context, dbBridgeDb.userDbid), dbBridgeDb.dbid);
         }
@@ -100,10 +103,25 @@ public class WinkBridge extends Bridge implements BridgeInterface {
         Log.d(TAG, "Discover Wink Lights");
         List<Light> lights = new ArrayList<>();
 
-        for (Thing thing: WinkUtil.discoverThings()) {
-            if (thing instanceof WinkLight) {
-                lights.add((WinkLight) thing);
+        WinkService service = WinkUtil.getService();
+
+        try {
+            // TODO handle if HTTP response is error
+            GetThingsResponse getThingsResponse = service.getThings("bearer " + WinkUtil.accessToken).execute().body();
+
+            for (GetThingsResponse.Thing thing : getThingsResponse.getData()) {
+                if (thing.getName().contains("Light") | thing.getName().contains("light")) {
+                    Location location = LocationConverter.toLocation(thing.getLocation());
+                    if (location == null) {
+                        location = new Location(0, 0);
+                    }
+                    WinkLight thingObj = new WinkLight(thing.getName(), thing.getThingId(), location, this);
+                    Log.d(TAG, String.format("WinkLight %s %s", thing.getName(), thing.getThingId()));
+                    lights.add(thingObj);
+                }
             }
+        } catch (IOException | NullPointerException e) {
+            Log.e(TAG, "exception", e);
         }
 
         return lights;

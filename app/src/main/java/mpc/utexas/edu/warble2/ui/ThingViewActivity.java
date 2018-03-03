@@ -26,6 +26,7 @@ public class ThingViewActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         long selectedThingDbid = (long) intent.getLongExtra("selectedThingDbid", 0);
+        System.out.println(selectedThingDbid);
         final Thing thing = Thing.getThingByDbid(getApplicationContext(), selectedThingDbid);
 
         // Set Title
@@ -47,7 +48,7 @@ public class ThingViewActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (thing instanceof Light) {
-                    ((PhilipsLight) thing).setLocation(LocationConverter.toLocation(String.format("(%s)", newLocationEditText.getText())));
+                    ((Light) thing).setLocation(LocationConverter.toLocation(String.format("(%s)", newLocationEditText.getText())));
                     thing.updateDb(getApplicationContext());
                 }
             }

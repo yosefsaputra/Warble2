@@ -1,11 +1,13 @@
 package mpc.utexas.edu.warble2.utils;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import mpc.utexas.edu.warble2.database.LocationConverter;
 import mpc.utexas.edu.warble2.features.Location;
 import mpc.utexas.edu.warble2.services.Wink.GetThingsResponse;
 import mpc.utexas.edu.warble2.services.Wink.WinkService;
@@ -26,7 +28,7 @@ public class WinkUtil {
         return RetrofitClient.getRetrofitClient("https://api.wink.com").create(WinkService.class);
     }
 
-    public static List<Thing> discoverThings() {
+    public static List<Thing> discoverBridges() {
         WinkService service = WinkUtil.getService();
 
         List<Thing> things = new ArrayList<>();
@@ -36,19 +38,9 @@ public class WinkUtil {
             GetThingsResponse getThingsResponse = service.getThings("bearer " + WinkUtil.accessToken).execute().body();
 
             for (GetThingsResponse.Thing thing : getThingsResponse.getData()) {
-                if (thing.getName().contains("Light") | thing.getName().contains("light")) {
-                    Location location;
-                    if (thing.getLocation() == "1451815") {
-                        location = new Location(8, 8);
-                    } else {
-                        location = new Location(0, 0);
-                    }
-                    Thing thingObj = new WinkLight(thing.getName(), thing.getThingId(), location);
-                    Log.d(TAG, String.format("Light %s %s %s", thing.getName(), thing.getThingId(), thing.getHubId()));
-                    things.add(thingObj);
-                } else if (thing.getName().contains("Hub") | thing.getName().contains("hub")) {
+                if (thing.getName().contains("Hub") | thing.getName().contains("hub")) {
                     Thing thingObj = new WinkBridge(thing.getName(), thing.getHubId(), null);
-                    Log.d(TAG, String.format("Hub %s %s", thing.getName(), thing.getHubId()));
+                    Log.d(TAG, String.format("Wink Hub %s %s", thing.getName(), thing.getHubId()));
                     things.add(thingObj);
                 }
             }

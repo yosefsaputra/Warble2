@@ -70,4 +70,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lightTitle" />
 
+    <EditText
+        android:id="@+id/newUserEditText"
+        android:layout_width="139dp"
+        android:layout_height="39dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="new username"
+        android:inputType="textShortMessage|textPersonName"
+        app:layout_constraintStart_toEndOf="@+id/userTitle"
+        app:layout_constraintTop_toBottomOf="@+id/bridgeTitle" />
+
+    <Button
+        android:id="@+id/newUserButton"
+        android:layout_width="wrap_content"
+        android:layout_height="39dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Submit"
+        app:layout_constraintStart_toEndOf="@+id/newUserEditText"
+        app:layout_constraintTop_toBottomOf="@+id/bridgeTitle" />
 </android.support.constraint.ConstraintLayout>
