@@ -39,6 +39,18 @@ public class InfoFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        /*
+        * Debug Code to add User
+        * */
+
+//        PhilipsUser philipsUser = new PhilipsUser("yosef", "QVhaSMPsPn-VVA5KwxSks3Lj1LAp92Wz3SWzWYN3", null, "QVhaSMPsPn-VVA5KwxSks3Lj1LAp92Wz3SWzWYN3", "QVhaSMPsPn-VVA5KwxSks3Lj1LAp92Wz3SWzWYN3");
+//        philipsUser.addDb(getContext());
+//
+//        WinkUser winkUser = new WinkUser("yosef", "iGyhyhoCN-NUqo2GbVhSFlIxSunrlXS6", "a_fwva7Vob9DijO_dC5IkjMJonI3o_8o", "gH0b8JfsOrmO8H0ix43CQ1LrSdQ5dkMR", "");
+//        winkUser.addDb(getContext());
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
         final SwipeRefreshLayout swipeRefreshLayout = getView().findViewById(R.id.listBridgesSwipeRefresh);
         final SwipeRefreshLayout.OnRefreshListener swipeRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -61,7 +73,7 @@ public class InfoFragment extends Fragment {
         @Override
         protected List<Bridge> doInBackground(Void... params){
             // Clear DB
-            Bridge.deleteAllDb(getContext());
+            // Bridge.deleteAllDb(getContext());
             return Bridge.discover();
         }
 

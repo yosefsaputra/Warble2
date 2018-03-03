@@ -29,8 +29,6 @@ public class PhilipsLight extends Light {
     public static String TAG = "PhilipsLight";
     protected PhilipsHueService service;
     protected PhilipsBridge parentBridge;
-    protected PhilipsUser user;
-
 
     // ======== [start Constructor implementation] ========
     public PhilipsLight(String name, Location location, PhilipsUser user, PhilipsBridge parentBridge) {
@@ -41,7 +39,6 @@ public class PhilipsLight extends Light {
         this.location = location;
 
         this.parentBridge = parentBridge;
-        this.user = user;
     }
 
     public PhilipsLight(String name, Location location, PhilipsUser user, PhilipsBridge parentBridge, long dbid) {
@@ -52,7 +49,6 @@ public class PhilipsLight extends Light {
         this.location = location;
 
         this.parentBridge = parentBridge;
-        this.user = user;
 
         this.dbid = dbid;
     }
@@ -67,10 +63,6 @@ public class PhilipsLight extends Light {
     public PhilipsBridge getParentBridge() {
         return this.parentBridge;
     }
-
-    public PhilipsUser getUser() {
-        return this.user;
-    }
     // ========= [end Getter Setter implementation] =========
 
 
@@ -84,9 +76,7 @@ public class PhilipsLight extends Light {
         List<PhilipsLight> lights = new ArrayList<>();
 
         for (ThingDb dblight: dblights) {
-            BridgeDb bridgeDb = appDatabase.bridgeDao().getBridge(dblight.bridgeDbid);
-            UserDb userDb = appDatabase.userDao().getUser(dblight.userDbid);
-            lights.add(new PhilipsLight(dblight.name, dblight.location, new PhilipsUser(userDb.name, userDb.id, PhilipsUser.identifier, userDb.bridgeDbid), new PhilipsBridge(bridgeDb.name, bridgeDb.UUID, bridgeDb.baseUrl, dblight.dbid)));
+            lights.add(new PhilipsLight(dblight.name, dblight.location, null, PhilipsBridge.getBridgeById(context, dblight.bridgeDbid)));
         }
 
         return lights;
@@ -95,8 +85,7 @@ public class PhilipsLight extends Light {
     public static void deleteAllDb(Context context) {
         Log.d(TAG, "Deleting All PhilipsLights from Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
-        // TODO Delete only PhilipsLights
-        appDatabase.thingDao().deleteAllThings();
+        appDatabase.thingDao().deleteAllThingsByCategory(identifier);
     }
     // ========= [end Static methods] =========
 
@@ -106,16 +95,14 @@ public class PhilipsLight extends Light {
         Log.d(TAG, "Adding PhilipsLight to Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
         BridgeDb bridgeDb = appDatabase.bridgeDao().getBridgeByUUID(this.parentBridge.getUUID());
-        UserDb userDb = appDatabase.userDao().getUserById(this.user.getId());
-        this.dbid = appDatabase.thingDao().addThing(new ThingDb(this.name, this.name, PhilipsLight.identifier, this.location, bridgeDb.dbid, userDb.dbid));
+        this.dbid = appDatabase.thingDao().addThing(new ThingDb(this.name, this.name, PhilipsLight.identifier, this.location, bridgeDb.dbid));
     }
 
     public void updateDb(Context context) {
         Log.d(TAG, "Updating PhilipsLight to Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
         BridgeDb bridgeDb = appDatabase.bridgeDao().getBridgeByUUID(this.parentBridge.getUUID());
-        UserDb userDb = appDatabase.userDao().getUserById(this.user.getId());
-        appDatabase.thingDao().updateThing(new ThingDb(this.name, this.name, PhilipsLight.identifier, this.location, bridgeDb.dbid, userDb.dbid));
+        appDatabase.thingDao().updateThing(new ThingDb(this.name, this.name, PhilipsLight.identifier, this.location, bridgeDb.dbid));
     }
 
     public void deleteDb(Context context) {
@@ -143,7 +130,7 @@ public class PhilipsLight extends Light {
         lightState.put("on", true);
         lightState.put("bri", 50);
 
-        service.putLightState(this.user.getId(), this.id, lightState).enqueue(new Callback<List<Object>>() {
+        service.putLightState(this.parentBridge.getUser().getId(), this.id, lightState).enqueue(new Callback<List<Object>>() {
             @Override
             public void onResponse(Call<List<Object>> call, Response<List<Object>> response) {
                 System.out.println(response.body());
@@ -160,7 +147,7 @@ public class PhilipsLight extends Light {
         lightState.put("on", false);
         lightState.put("transitiontime", 0);
 
-        service.putLightState(this.user.getId(), this.id, lightState).enqueue(new Callback<List<Object>>() {
+        service.putLightState(this.parentBridge.getUser().getId(), this.id, lightState).enqueue(new Callback<List<Object>>() {
             @Override
             public void onResponse(Call<List<Object>> call, Response<List<Object>> response) {
                 System.out.println(response.body());
@@ -180,7 +167,7 @@ public class PhilipsLight extends Light {
         HashMap<String, Object> locationState = new HashMap<>();
         locationState.put("name", String.format("%s,%s,%s", PhilipsLight.identifier, location.getxCoordinate(), location.getyCoordinate()));
 
-        this.service.putLight(this.user.getId(), this.id, locationState).enqueue(new Callback<List<Object>>() {
+        this.service.putLight(this.parentBridge.getUser().getId(), this.id, locationState).enqueue(new Callback<List<Object>>() {
             @Override
             public void onResponse(Call<List<Object>> call, Response<List<Object>> response) {
                 System.out.println(response.body());

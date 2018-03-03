@@ -34,9 +34,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
-    public static String username = "yosef";
-    public static String userid = "QVhaSMPsPn-VVA5KwxSks3Lj1LAp92Wz3SWzWYN3";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

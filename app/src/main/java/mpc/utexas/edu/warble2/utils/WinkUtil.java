@@ -47,7 +47,7 @@ public class WinkUtil {
                     Log.d(TAG, String.format("Light %s %s %s", thing.getName(), thing.getThingId(), thing.getHubId()));
                     things.add(thingObj);
                 } else if (thing.getName().contains("Hub") | thing.getName().contains("hub")) {
-                    Thing thingObj = new WinkBridge(thing.getName(), thing.getHubId());
+                    Thing thingObj = new WinkBridge(thing.getName(), thing.getHubId(), null);
                     Log.d(TAG, String.format("Hub %s %s", thing.getName(), thing.getHubId()));
                     things.add(thingObj);
                 }

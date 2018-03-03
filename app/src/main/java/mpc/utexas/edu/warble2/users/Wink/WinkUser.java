@@ -18,30 +18,58 @@ public class WinkUser extends User{
     public static String identifier = "WinkUser";
     public static String TAG = "WinkUser";
 
-    public static List<WinkUser> getAllDb(Context context) {
-        Log.d(TAG, "Getting All WinkUser from Database");
+//    public static List<WinkUser> getAllDb(Context context) {
+//        Log.d(TAG, "Getting All WinkUser from Database");
+//        AppDatabase appDatabase = AppDatabase.getDatabase(context);
+//        List<UserDb> dbusers = appDatabase.userDao().getAllUsersByCategory(WinkUser.identifier);
+//
+//        List<WinkUser> users = new ArrayList<>();
+//
+//        for (UserDb dbuser: dbusers) {
+//            users.add(new WinkUser(dbuser.name, dbuser.id, dbuser.category));
+//        }
+//
+//        return users;
+//    }
+//
+//    public static void deleteAllDb(Context context) {
+//        Log.d(TAG, "Delete All WinkUser from Database");
+//        AppDatabase appDatabase = AppDatabase.getDatabase(context);
+//        appDatabase.userDao().deleteAllUsersByCategory(WinkUser.identifier);
+//    }
+//
+//    public WinkUser(String name, String id, String category) {
+//        this.name = name;
+//        this.id = id;
+//        this.category = category;
+//    }
+
+    public WinkUser(String name, String id, String secretId, String accessToken, String refreshToken) {
+        super(name, id, secretId, accessToken, refreshToken);
+        this.category = identifier;
+    }
+
+    // ======== [start Static methods] ========
+    public static List<User> getAllDb(Context context) {
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
-        List<UserDb> dbusers = appDatabase.userDao().getAllUsersByCategory(WinkUser.identifier);
+        List<User> users = new ArrayList<>();
 
-        List<WinkUser> users = new ArrayList<>();
-
-        for (UserDb dbuser: dbusers) {
-            users.add(new WinkUser(dbuser.name, dbuser.id, dbuser.category, dbuser.bridgeDbid));
+        for (UserDb userDb: appDatabase.userDao().getAllUsersByCategory(identifier)) {
+            users.add(new WinkUser(userDb.name, userDb.id, userDb.secretId, userDb.accessToken, userDb.refreshToken));
         }
 
         return users;
     }
 
-    public static void deleteAllDb(Context context) {
-        Log.d(TAG, "Delete All WinkUser from Database");
+    public static WinkUser getUserByDbid(Context context, long dbid) {
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
-        appDatabase.userDao().deleteAllUsersByCategory(WinkUser.identifier);
-    }
+        UserDb userDb = appDatabase.userDao().getUser(dbid);
 
-    public WinkUser(String name, String id, String category, long bridgeDbid) {
-        this.name = name;
-        this.id = id;
-        this.category = category;
-        this.bridgeDbid = bridgeDbid;
+        if (userDb == null) {
+            return null;
+        }
+
+        return new WinkUser(userDb.name, userDb.id, userDb.secretId, userDb.accessToken, userDb.refreshToken);
     }
+    // ========= [end Static methods] =========
 }

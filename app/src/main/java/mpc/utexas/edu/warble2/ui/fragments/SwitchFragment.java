@@ -93,7 +93,7 @@ public class SwitchFragment extends Fragment {
         @Override
         protected List<Light> doInBackground(Void... params){
             List<Light> lights = new ArrayList<>();
-            List<Bridge> bridges;
+            List<? extends Bridge> bridges;
 
             bridges = Bridge.getAllDb(getContext());
             for (Bridge bridge : bridges) {

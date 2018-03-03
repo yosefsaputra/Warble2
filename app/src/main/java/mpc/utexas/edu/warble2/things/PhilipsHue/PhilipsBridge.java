@@ -23,10 +23,10 @@ import mpc.utexas.edu.warble2.database.BridgeDb;
 import mpc.utexas.edu.warble2.database.LocationConverter;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.Bridge;
-import mpc.utexas.edu.warble2.things.BridgeInterface;
 import mpc.utexas.edu.warble2.things.Light;
 import mpc.utexas.edu.warble2.things.Thing;
 import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
+import mpc.utexas.edu.warble2.users.User;
 import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
 import mpc.utexas.edu.warble2.utils.SSDPDiscovery;
 import okhttp3.ResponseBody;
@@ -35,20 +35,21 @@ import okhttp3.ResponseBody;
  * Created by yosef on 11/12/2017.
  */
 
-public class PhilipsBridge extends Bridge implements BridgeInterface {
+public class PhilipsBridge extends Bridge {
     public static String identifier = "PhilipsBridge";
     public static String TAG = "PhilipsBridge";
+    public static String bridgeToUser = "onetomany";
     protected PhilipsHueService service;
 
 
     // ======= [start Constructor methods] =======
-    public PhilipsBridge(String name, String id, String baseUrl) {
-        super(name, id, baseUrl);
+    public PhilipsBridge(String name, String id, String baseUrl, User user) {
+        super(name, id, baseUrl, identifier, user);
         this.service = PhilipsHueUtil.getService(baseUrl);
     }
 
-    public PhilipsBridge(String name, String id, String baseUrl, long dbid) {
-        super(name, id, baseUrl, dbid);
+    public PhilipsBridge(String name, String id, String baseUrl, User user, long dbid) {
+        super(name, id, baseUrl, identifier, user, dbid);
         this.service = PhilipsHueUtil.getService(baseUrl);
     }
     // ======== [end Constructor methods] ========
@@ -115,7 +116,7 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
         String urlBase = URLBase.getText();
 
         if (modelName.contains("Philips")) {
-            Bridge bridge = new PhilipsBridge(name, id, urlBase);
+            Bridge bridge = new PhilipsBridge(name, id, urlBase, null);
             bridge.setUUID(id);
             return bridge;
         } else {
@@ -123,19 +124,34 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
         }
     }
 
-    public static List<PhilipsBridge> getAllPhilipsBridgesDb(Context context) {
+    public static List<Bridge> getAllDb(Context context) {
         Log.d(TAG, "Getting All from Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
         List<BridgeDb> dbBridgeDbs = appDatabase.bridgeDao().getAllBridgesByCategory(identifier);
 
-        List<PhilipsBridge> philipsBridges = new ArrayList<>();
-
+        List<Bridge> philipsBridges = new ArrayList<>();
         for (BridgeDb dbBridgeDb : dbBridgeDbs) {
-            philipsBridges.add(new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl));
+            philipsBridges.add(new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl, PhilipsUser.getUserByDbid(context, dbBridgeDb.userDbid)));
         }
 
         return philipsBridges;
     }
+
+    public static PhilipsBridge getBridgeById(Context context, long dbid) {
+        Log.d(TAG, "Getting PhilipsBridge by Id from Database");
+        AppDatabase appDatabase = AppDatabase.getDatabase(context);
+        BridgeDb dbBridgeDb = appDatabase.bridgeDao().getBridge(dbid);
+
+        PhilipsBridge bridge = null;
+
+        if (dbBridgeDb.category.equals(PhilipsBridge.identifier)) {
+            bridge = new PhilipsBridge(dbBridgeDb.name, dbBridgeDb.UUID, dbBridgeDb.baseUrl, PhilipsUser.getUserByDbid(context, dbBridgeDb.userDbid), dbBridgeDb.dbid);
+        }
+
+        return bridge;
+    }
+
+    public static void deleteAllDb(Context context) {}
     // ========= [end Static methods] =========
 
 
@@ -150,6 +166,10 @@ public class PhilipsBridge extends Bridge implements BridgeInterface {
     // ======== [start BridgeInterface methods] ========
     @Override
     public List<Thing> discoverThings(Context context) {
+        if (this.user == null) {
+            Log.d(TAG, "FAIL: User of this bridge is not defined");
+            return null;
+        }
         Log.d(TAG, "Discover Philips Things");
         final List<PhilipsUser> users = PhilipsUser.getAllDb(context);
         final List<Thing> lights = new ArrayList<>();

@@ -9,15 +9,7 @@ import android.arch.persistence.room.PrimaryKey;
  * Created by yosef on 12/21/2017.
  */
 
-@Entity(foreignKeys =
-@ForeignKey(
-        entity = BridgeDb.class,
-        parentColumns = "dbid",
-        childColumns = "bridgeDbid",
-        onDelete = ForeignKey.CASCADE
-),
-        indices = {@Index(value = "dbid"), @Index(value = "id"), @Index(value = "bridgeDbid")}
-)
+@Entity
 public class UserDb {
     @PrimaryKey(autoGenerate = true)
     public long dbid;
@@ -27,15 +19,13 @@ public class UserDb {
     public String category;
     public String accessToken;
     public String refreshToken;
-    public long bridgeDbid;
 
-    public UserDb(String name, String id, String secretId, String category, String accessToken, String refreshToken, long bridgeDbid) {
+    public UserDb(String name, String id, String secretId, String category, String accessToken, String refreshToken) {
         this.name = name;
         this.id = id;
         this.secretId = secretId;
         this.category = category;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
-        this.bridgeDbid = bridgeDbid;
     }
 }

@@ -38,6 +38,9 @@ public interface ThingDao {
     @Query("DELETE FROM ThingDb WHERE dbid=:dbid")
     void deleteThing(long dbid);
 
+    @Query("DELETE FROM ThingDb WHERE category=:category")
+    void deleteAllThingsByCategory(String category);
+
     @Query("DELETE FROM ThingDb")
     void deleteAllThings();
 }

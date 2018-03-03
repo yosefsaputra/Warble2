@@ -51,15 +51,13 @@ public abstract class Thing implements DatabaseInterface {
         ThingDb thingDb = appDatabase.thingDao().getThing(dbid);
 
         if (thingDb.category.equals(PhilipsLight.identifier)) {
-            PhilipsUser user = (PhilipsUser) User.getUserByDbid(context, thingDb.userDbid);
-            Log.d(TAG, user.getName());
-            return new PhilipsLight(thingDb.name, thingDb.location, user, (PhilipsBridge) Bridge.getBridgeById(context, thingDb.bridgeDbid), dbid);
+            return new PhilipsLight(thingDb.name, thingDb.location, null, (PhilipsBridge) Bridge.getBridgeById(context, thingDb.bridgeDbid), dbid);
         }
         return null;
     }
 
     public static void deleteAllDb(Context context) {
-        Log.d(TAG, "Deleting All Things from Database  ...");
+        Log.d(TAG, "Delete All Things from Database");
         AppDatabase appDatabase = AppDatabase.getDatabase(context);
         appDatabase.thingDao().deleteAllThings();
     }
