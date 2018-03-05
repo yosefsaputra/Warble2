@@ -1,19 +1,15 @@
 package mpc.utexas.edu.warble2.utils;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import mpc.utexas.edu.warble2.database.LocationConverter;
-import mpc.utexas.edu.warble2.features.Location;
 import mpc.utexas.edu.warble2.services.Wink.GetThingsResponse;
 import mpc.utexas.edu.warble2.services.Wink.WinkService;
 import mpc.utexas.edu.warble2.things.Thing;
 import mpc.utexas.edu.warble2.things.Wink.WinkBridge;
-import mpc.utexas.edu.warble2.things.Wink.WinkLight;
 
 /**
  * Created by yosef on 2/9/2018.
@@ -40,7 +36,6 @@ public class WinkUtil {
             for (GetThingsResponse.Thing thing : getThingsResponse.getData()) {
                 if (thing.getName().contains("Hub") | thing.getName().contains("hub")) {
                     Thing thingObj = new WinkBridge(thing.getName(), thing.getHubId(), null);
-                    Log.d(TAG, String.format("Wink Hub %s %s", thing.getName(), thing.getHubId()));
                     things.add(thingObj);
                 }
             }

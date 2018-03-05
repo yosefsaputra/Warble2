@@ -17,7 +17,6 @@ import mpc.utexas.edu.warble2.services.Wink.WinkService;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.BridgeInterface;
 import mpc.utexas.edu.warble2.things.Light;
-import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 import mpc.utexas.edu.warble2.things.Thing;
 import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
 import mpc.utexas.edu.warble2.users.User;
@@ -51,13 +50,22 @@ public class WinkBridge extends Bridge implements BridgeInterface {
     // ======== [end Constructor methods] ========
 
     // ======== [start Static methods] ========
-    public static List<Bridge> discover() {
+    public static List<Bridge> discover(Context context) {
         Log.d(TAG, "Discover Wink Bridges");
         List<Bridge> bridges = new ArrayList<>();
 
+        List<Bridge> existingBridges = WinkBridge.getAllDb(context);
+
         for (Thing thing: WinkUtil.discoverBridges()) {
             if (thing instanceof WinkBridge) {
-                bridges.add((WinkBridge) thing);
+                Bridge bridge = (WinkBridge) thing;
+                for (Bridge i: existingBridges) {
+                    if (i.getUUID().equals(bridge.getUUID())) {
+                        bridge = i;
+                        break;
+                    }
+                }
+                bridges.add(bridge);
             }
         }
 
@@ -95,7 +103,11 @@ public class WinkBridge extends Bridge implements BridgeInterface {
     @Override
     public List<Thing> discoverThings(Context context) {
         Log.d(TAG, "Discover Wink Things");
-        return new ArrayList<>();
+
+        List<Thing> things = new ArrayList<>();
+        things.addAll(discoverLights(context));
+
+        return things;
     }
 
     @Override

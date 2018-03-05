@@ -1,7 +1,6 @@
 package mpc.utexas.edu.warble2.users.PhilipsHue;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;

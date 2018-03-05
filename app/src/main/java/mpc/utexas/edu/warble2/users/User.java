@@ -8,11 +8,7 @@ import java.util.List;
 
 import mpc.utexas.edu.warble2.database.AppDatabase;
 import mpc.utexas.edu.warble2.database.DatabaseInterface;
-import mpc.utexas.edu.warble2.database.ThingDb;
 import mpc.utexas.edu.warble2.database.UserDb;
-import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
-import mpc.utexas.edu.warble2.things.Thing;
-import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
 
 /**
  * Created by yosef on 11/7/2017.
@@ -146,7 +142,7 @@ public class User implements DatabaseInterface {
     public String toString() {
         String string = "";
         string += String.format("Name: %s, ", this.name);
-        string += String.format("ID: %s\n", this.id);
+        string += String.format("ID: %s", this.id);
         return string;
     }
     // ========== [end Other methods] ==========

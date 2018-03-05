@@ -83,12 +83,12 @@ public abstract class Bridge extends Thing implements BridgeInterface {
 
 
     // ======== [start Static methods] ========
-    public static List<Bridge> discover(){
+    public static List<Bridge> discover(Context context){
         List<Bridge> bridges = new ArrayList<>();
 
         // TODO Add more bridge children, if necessary. Find idea how to do this better because it is too detailed.
-        bridges.addAll(PhilipsBridge.discover());
-        bridges.addAll(WinkBridge.discover());
+        bridges.addAll(PhilipsBridge.discover(context));
+        bridges.addAll(WinkBridge.discover(context));
 
         return bridges;
     }
@@ -199,7 +199,7 @@ public abstract class Bridge extends Thing implements BridgeInterface {
         string += String.format("Name: %s, ", this.name);
         string += String.format("ID: %s, ", this.UUID);
         string += String.format("Base URL: %s, ", this.baseUrl);
-        string += String.format("User: %s\n", this.user);
+        string += String.format("User: %s", this.user);
         return string;
     }
     // ========= [end Others methods] =========

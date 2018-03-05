@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mpc.utexas.edu.warble2.R;
-import mpc.utexas.edu.warble2.database.AppDatabase;
-import mpc.utexas.edu.warble2.database.BridgeDb;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserRequest;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserResponse;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
@@ -139,13 +137,6 @@ public class BridgeViewActivity extends AppCompatActivity {
     }
 
     private void setUsersListViewPhilips(Bridge bridge) {
-        System.out.println("Bridge load from db");
-        AppDatabase appDatabase = AppDatabase.getDatabase(getApplicationContext());
-        BridgeDb[] bridgeDbs = appDatabase.bridgeDao().getAllBridges();
-        for (BridgeDb bridgeDb: bridgeDbs) {
-            System.out.println(bridgeDb.toString());
-        }
-
         // Update Users ListView
         ListView userListView = (ListView) findViewById(R.id.userList);
         // TODO Bug: This should only list down the users belong to a specific bridge

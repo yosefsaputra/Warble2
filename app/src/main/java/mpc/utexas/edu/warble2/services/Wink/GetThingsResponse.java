@@ -1,11 +1,8 @@
 package mpc.utexas.edu.warble2.services.Wink;
 
-import android.arch.persistence.room.Ignore;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Date;
 import java.util.List;
 
 /**

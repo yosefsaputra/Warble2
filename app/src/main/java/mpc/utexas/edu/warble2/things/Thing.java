@@ -3,22 +3,13 @@ package mpc.utexas.edu.warble2.things;
 import android.content.Context;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mpc.utexas.edu.warble2.database.AppDatabase;
-import mpc.utexas.edu.warble2.database.BridgeDb;
 import mpc.utexas.edu.warble2.database.DatabaseInterface;
 import mpc.utexas.edu.warble2.database.ThingDb;
-import mpc.utexas.edu.warble2.database.UserDb;
-import mpc.utexas.edu.warble2.features.Location;
-import mpc.utexas.edu.warble2.services.Service;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
 import mpc.utexas.edu.warble2.things.Wink.WinkBridge;
 import mpc.utexas.edu.warble2.things.Wink.WinkLight;
-import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
-import mpc.utexas.edu.warble2.users.User;
 
 /**
  * Created by yosef on 11/7/2017.
@@ -53,7 +44,7 @@ public abstract class Thing implements DatabaseInterface {
 
         if (thingDb != null) {
             if (thingDb.category.equals(PhilipsLight.identifier)) {
-                return new PhilipsLight(thingDb.name, thingDb.location, null, (PhilipsBridge) Bridge.getBridgeById(context, thingDb.bridgeDbid), dbid);
+                return new PhilipsLight(thingDb.name, thingDb.id, thingDb.location, null, (PhilipsBridge) Bridge.getBridgeById(context, thingDb.bridgeDbid), dbid);
             } else if (thingDb.category.equals(WinkLight.identifier)) {
                 return new WinkLight(thingDb.name, thingDb.id, thingDb.location, (WinkBridge) Bridge.getBridgeById(context, thingDb.bridgeDbid), dbid);
             }
@@ -74,7 +65,7 @@ public abstract class Thing implements DatabaseInterface {
         String string = "";
         string += String.format("Name: %s, ", this.name);
         string += String.format("Id: %s, ", this.id);
-        string += String.format("Dbid: %s, ", this.dbid);
+        string += String.format("Dbid: %s", this.dbid);
         return string;
     }
     // ========= [end Others methods] =========

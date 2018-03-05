@@ -1,9 +1,8 @@
 package mpc.utexas.edu.warble2.ui;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,7 +11,6 @@ import android.widget.TextView;
 import mpc.utexas.edu.warble2.R;
 import mpc.utexas.edu.warble2.database.LocationConverter;
 import mpc.utexas.edu.warble2.things.Light;
-import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
 import mpc.utexas.edu.warble2.things.Thing;
 
 public class ThingViewActivity extends AppCompatActivity {
@@ -26,7 +24,6 @@ public class ThingViewActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         long selectedThingDbid = (long) intent.getLongExtra("selectedThingDbid", 0);
-        System.out.println(selectedThingDbid);
         final Thing thing = Thing.getThingByDbid(getApplicationContext(), selectedThingDbid);
 
         // Set Title

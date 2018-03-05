@@ -1,7 +1,6 @@
 package mpc.utexas.edu.warble2.database;
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
@@ -42,7 +41,7 @@ public class BridgeDb {
         string += String.format("Name: %s, ", this.name);
         string += String.format("ID: %s, ", this.UUID);
         string += String.format("Base URL: %s, ", this.baseUrl);
-        string += String.format("User dbid: %s\n", this.userDbid);
+        string += String.format("User dbid: %s", this.userDbid);
         return string;
     }
 }

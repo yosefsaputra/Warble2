@@ -39,18 +39,6 @@ public class InfoFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        /*
-        * Debug Code to add User
-        * */
-
-//        PhilipsUser philipsUser = new PhilipsUser("yosef", "QVhaSMPsPn-VVA5KwxSks3Lj1LAp92Wz3SWzWYN3", null, "QVhaSMPsPn-VVA5KwxSks3Lj1LAp92Wz3SWzWYN3", "QVhaSMPsPn-VVA5KwxSks3Lj1LAp92Wz3SWzWYN3");
-//        philipsUser.addDb(getContext());
-//
-//        WinkUser winkUser = new WinkUser("yosef", "iGyhyhoCN-NUqo2GbVhSFlIxSunrlXS6", "a_fwva7Vob9DijO_dC5IkjMJonI3o_8o", "gH0b8JfsOrmO8H0ix43CQ1LrSdQ5dkMR", "");
-//        winkUser.addDb(getContext());
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-
         final SwipeRefreshLayout swipeRefreshLayout = getView().findViewById(R.id.listBridgesSwipeRefresh);
         final SwipeRefreshLayout.OnRefreshListener swipeRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -72,15 +60,15 @@ public class InfoFragment extends Fragment {
     public class BridgeDiscovery extends AsyncTask<Void, Void, List<Bridge>> {
         @Override
         protected List<Bridge> doInBackground(Void... params){
-            // Clear DB
-            // Bridge.deleteAllDb(getContext());
-            return Bridge.discover();
+            return Bridge.discover(getContext());
         }
 
         @Override
         protected void onPostExecute(List<Bridge> bridges) {
             // Update DB
+            Log.d(TAG, "Discovered Bridges:");
             for (Bridge bridge: bridges) {
+                Log.d(TAG, "- " + bridge.toString());
                 bridge.updateDb(getContext());
             }
 
@@ -102,21 +90,23 @@ public class InfoFragment extends Fragment {
             swipeRefreshLayout.setRefreshing(false);
 
             // Discover Things
-            new ThingDiscovery().execute();
+            new ThingDiscovery().execute(bridges);
         }
     }
 
-    public class ThingDiscovery extends AsyncTask<Bridge, Void, List<Thing>> {
+    public class ThingDiscovery extends AsyncTask<List<Bridge>, Void, List<Thing>> {
+        @SafeVarargs
         @Override
-        protected List<Thing> doInBackground(Bridge... bridges) {
+        protected final List<Thing> doInBackground(List<Bridge>... sBridges) {
             // Clear DB
             Thing.deleteAllDb(getContext());
 
             // Discover Things from each Bridge
             List<Thing> things = new ArrayList<>();
-            for (Bridge bridge: bridges) {
+            for (Bridge bridge: sBridges[0]) {
                 things.addAll(bridge.discoverThings(getContext()));
             }
+
             return things;
         }
 

@@ -1,8 +1,5 @@
 package mpc.utexas.edu.warble2;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;

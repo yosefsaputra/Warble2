@@ -8,8 +8,6 @@ import android.arch.persistence.room.Update;
 
 import java.util.List;
 
-import mpc.utexas.edu.warble2.things.Thing;
-
 /**
  * Created by yosef on 1/21/2018.
  */
@@ -28,6 +26,12 @@ public interface ThingDao {
 
     @Query("SELECT * FROM ThingDb WHERE bridgeDbid=:bridgeDbid")
     List<ThingDb> getAllThingsForBridge(long bridgeDbid);
+
+    @Query("SELECT * FROM ThingDb WHERE category=:category")
+    List<ThingDb> getAllThingsByCategory(String category);
+
+    @Query("SELECT * FROM ThingDb WHERE id=:id")
+    ThingDb getThingById(String id);
 
     @Query("SELECT * FROM ThingDb WHERE name=:name AND category=:category AND bridgeDbid=:bridgeDbid")
     ThingDb getThingByFeature(String name, String category, long bridgeDbid);
