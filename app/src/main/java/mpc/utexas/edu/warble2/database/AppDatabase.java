@@ -9,7 +9,7 @@ import android.content.Context;
  * Created by yosef on 12/21/2017.
  */
 
-@Database(entities = {BridgeDb.class, UserDb.class, ThingDb.class}, version = 21, exportSchema = false)
+@Database(entities = {BridgeDb.class, UserDb.class, ThingDb.class}, version = 26, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase INSTANCE;
 
@@ -19,7 +19,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public static AppDatabase getDatabase(Context context) {
         if (INSTANCE == null) {
-            INSTANCE = Room.databaseBuilder(context, AppDatabase.class, "bridgedatabase")
+            INSTANCE = Room.databaseBuilder(context, AppDatabase.class, "warbledatabase")
                     .allowMainThreadQueries()
                     .fallbackToDestructiveMigration()
                     .build();

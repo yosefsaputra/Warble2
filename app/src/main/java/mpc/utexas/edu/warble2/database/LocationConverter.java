@@ -18,7 +18,7 @@ public class LocationConverter {
             return null;
         }
 
-        String regex = "(\\()(\\d+)(,)(\\d+)(\\))";
+        String regex = "(\\(*)(\\d+)(,)(\\d+)(\\)*)";
 
         Pattern r = Pattern.compile(regex);
         Matcher m = r.matcher(locationString);

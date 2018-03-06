@@ -3,8 +3,6 @@ package mpc.utexas.edu.warble2.services.PhilipsHue;
 import java.util.HashMap;
 import java.util.List;
 
-import mpc.utexas.edu.warble2.services.Service;
-import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;

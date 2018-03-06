@@ -37,7 +37,7 @@ public class SwitchFragment extends Fragment {
     private static String TAG = "SwitchFragment";
 
     private static Location currentLocation = new Location(0, 0);
-    private static double distance = 3.0;
+    private static double scopeSwitchDistance = 3.0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,6 +60,8 @@ public class SwitchFragment extends Fragment {
 
         // Set Light Switch
         callAsyncTask();
+
+
 
         // Set Current Location Views
         setCurrentLocationViews();
@@ -93,35 +95,40 @@ public class SwitchFragment extends Fragment {
         @Override
         protected List<Light> doInBackground(Void... params){
             List<Light> lights = new ArrayList<>();
-            List<Bridge> bridges;
 
-            bridges = Bridge.getAllDb(getContext());
-            for (Bridge bridge : bridges) {
-                List<Light> lightsInBridge = new ArrayList<>();
-                try {
-                    lightsInBridge = bridge.discoverLights(getContext());
-                } catch (RuntimeException e) {
-                    Log.d(TAG, "exception", e);
-                }
-
-                lights.addAll(lightsInBridge);
-            }
+            lights.addAll(Light.getAllDb(getContext()));
 
             List<Light> filteredLights = new ArrayList<>();
 
-            if (distance > 0.0) {
+            if (scopeSwitchDistance > 0.0) {
                 for (Light light : lights) {
                     int xDiff = currentLocation.getxCoordinate() - light.getLocation().getxCoordinate();
                     int yDiff = currentLocation.getyCoordinate() - light.getLocation().getyCoordinate();
                     double lightDistance = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
 
-                    Log.d(TAG, "TAG: lightDistance = " + lightDistance);
-                    if (lightDistance <= distance) {
+                    if (lightDistance <= scopeSwitchDistance) {
                         filteredLights.add(light);
                     }
                 }
             } else {
                 filteredLights.addAll(lights);
+            }
+
+            Log.d(TAG, "All Lights:");
+            for (Light light: lights) {
+                Log.d(TAG, "- " + light);
+            }
+
+            Log.d(TAG, "Selected Lights:");
+            for (Light light: filteredLights) {
+                Log.d(TAG, "- " + light);
+            }
+
+            Log.d(TAG, "Unselected Lights:");
+            for (Light light: lights) {
+                if (filteredLights.contains(light)) {
+                    Log.d(TAG, "- " + light);
+                }
             }
 
             return filteredLights;

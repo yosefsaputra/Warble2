@@ -8,8 +8,6 @@ import android.arch.persistence.room.Update;
 
 import java.util.List;
 
-import mpc.utexas.edu.warble2.things.Bridge;
-
 /**
  * Created by yosef on 12/21/2017.
  */

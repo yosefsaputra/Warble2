@@ -21,16 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mpc.utexas.edu.warble2.R;
-import mpc.utexas.edu.warble2.database.AppDatabase;
-import mpc.utexas.edu.warble2.database.BridgeDb;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserRequest;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserResponse;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
 import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.Light;
+import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
 import mpc.utexas.edu.warble2.things.Thing;
 import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
+import mpc.utexas.edu.warble2.users.User;
 import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,7 +43,6 @@ public class BridgeViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bridge_view);
 
         Intent intent = getIntent();
         int bridgePosition = intent.getExtras().getInt("bridge_position");
@@ -51,12 +50,35 @@ public class BridgeViewActivity extends AppCompatActivity {
         List<Bridge> bridges = Bridge.getAllDb(getApplicationContext());
         final Bridge bridge = bridges.get(bridgePosition);
 
-        final BridgeDb bridgeDb = AppDatabase.getDatabase(getApplicationContext()).bridgeDao().getBridgeByUUID(bridge.getUUID());
+        String bridgeToUser;
+        try {
+            bridgeToUser = (String) bridge.getClass().getField("bridgeToUser").get(null);
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            bridgeToUser = "manytoone";
+        }
 
-        service = PhilipsHueUtil.getService(bridge.getBaseUrl());
+        if (bridgeToUser.equals("onetomany")) {
+            setContentView(R.layout.activity_bridge_view_createuser);
+            if (bridge.getClass() == PhilipsBridge.class) {
+                setCreateUserFormPhilips(bridge);
+                setUsersListViewPhilips(bridge);
+            }
+        } else {
+            setContentView(R.layout.activity_bridge_view);
+        }
 
+        setTitleView(bridge);
+
+        setLightsListView(bridge);
+    }
+
+    private void setTitleView(Bridge bridge) {
         TextView bridgeTitle = (TextView) findViewById(R.id.bridgeTitle);
         bridgeTitle.setText(bridge.getName());
+    }
+
+    private void setCreateUserFormPhilips(final Bridge bridge) {
+        service = PhilipsHueUtil.getService(bridge.getBaseUrl());
 
         final EditText newUserNameEditText = (EditText) findViewById(R.id.newUserEditText);
 
@@ -77,8 +99,17 @@ public class BridgeViewActivity extends AppCompatActivity {
                                 Log.d(TAG, userId);
                                 toast = Toast.makeText(getApplicationContext(), (CharSequence) userId, Toast.LENGTH_LONG);
 
-                                PhilipsUser user = new PhilipsUser(newUserNameEditText.getText().toString(), userId, PhilipsUser.identifier, bridgeDb.dbid);
-                                user.addDb(getApplicationContext());
+                                if (bridge.getUser() == null) {
+                                    PhilipsUser user = new PhilipsUser(newUserNameEditText.getText().toString(), userId, null, null, null);
+                                    user.addDb(getApplicationContext());
+                                    bridge.setUser(user);
+                                    bridge.updateDb(getApplicationContext());
+                                } else {
+                                    long userDbid = bridge.getUser().getDbid();
+                                    PhilipsUser philipsUser = PhilipsUser.getUserByDbid(getApplicationContext(), userDbid);
+                                    philipsUser.setId(userId);
+                                    philipsUser.updateDb(getApplicationContext());
+                                }
 
                                 finish();
                                 startActivity(getIntent());
@@ -103,17 +134,26 @@ public class BridgeViewActivity extends AppCompatActivity {
                 });
             }
         });
+    }
 
+    private void setUsersListViewPhilips(Bridge bridge) {
         // Update Users ListView
         ListView userListView = (ListView) findViewById(R.id.userList);
-        List<PhilipsUser> users = PhilipsUser.getAllDb(getApplicationContext());
+        // TODO Bug: This should only list down the users belong to a specific bridge
+        List<User> users = new ArrayList<>();
+        if (bridge.getUser() != null) {
+            users.add(bridge.getUser());
+        }
+
         List<String> userIds = new ArrayList<>();
-        for (PhilipsUser user : users) {
+        for (User user : users) {
             userIds.add(user.getId());
         }
         ArrayAdapter<String> usersListAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.user_layout, R.id.userNameTextView, userIds);
         userListView.setAdapter(usersListAdapter);
+    }
 
+    private void setLightsListView(Bridge bridge) {
         // Discover Lights and Update Lights ListView
         PhilipsLight.deleteAllDb(getApplicationContext());
         new DiscoverLights().execute(bridge);

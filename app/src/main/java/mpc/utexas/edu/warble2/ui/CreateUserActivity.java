@@ -10,9 +10,9 @@ import android.widget.TextView;
 import java.util.List;
 
 import mpc.utexas.edu.warble2.R;
+import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserRequest;
 import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserResponse;
 import mpc.utexas.edu.warble2.services.PhilipsHue.PhilipsHueService;
-import mpc.utexas.edu.warble2.services.PhilipsHue.CreateUserRequest;
 import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
