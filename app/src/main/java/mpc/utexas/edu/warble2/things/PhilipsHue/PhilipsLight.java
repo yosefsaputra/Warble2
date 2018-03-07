@@ -125,16 +125,14 @@ public class PhilipsLight extends Light {
     // ======== [start LightInterface implementation] ========
     @Override
     public void setOn() {
-        Log.d(TAG, "Set Off (" + this.toString() + ")");
+        Log.i(TAG, "Set On (" + this.toString() + ")");
         HashMap<String, Object> lightState = new HashMap<>();
         lightState.put("on", true);
         lightState.put("bri", 50);
 
         service.putLightState(this.parentBridge.getUser().getId(), this.name, lightState).enqueue(new Callback<List<Object>>() {
             @Override
-            public void onResponse(Call<List<Object>> call, Response<List<Object>> response) {
-                System.out.println(response.body());
-            }
+            public void onResponse(Call<List<Object>> call, Response<List<Object>> response) {}
 
             @Override
             public void onFailure(Call<List<Object>> call, Throwable t) {}
@@ -143,16 +141,14 @@ public class PhilipsLight extends Light {
 
     @Override
     public void setOff() {
-        Log.d(TAG, "Set Off ("+ this.toString() + ")");
+        Log.i(TAG, "Set Off ("+ this.toString() + ")");
         HashMap<String, Object> lightState = new HashMap<>();
         lightState.put("on", false);
         lightState.put("transitiontime", 0);
 
         service.putLightState(this.parentBridge.getUser().getId(), this.name, lightState).enqueue(new Callback<List<Object>>() {
             @Override
-            public void onResponse(Call<List<Object>> call, Response<List<Object>> response) {
-                System.out.println(response.body());
-            }
+            public void onResponse(Call<List<Object>> call, Response<List<Object>> response) {}
 
             @Override
             public void onFailure(Call<List<Object>> call, Throwable t) {}
@@ -164,16 +160,14 @@ public class PhilipsLight extends Light {
     // ======== [start LocationInterface implementation] ========
     @Override
     public void setLocation(Location location) {
-        Log.d(TAG, "Set Location (" + this.toString() + "): " + location.getxCoordinate() + ", "  + location.getyCoordinate());
+        Log.i(TAG, "Set Location (" + this.toString() + "): " + location.getxCoordinate() + ", "  + location.getyCoordinate());
         this.location = location;
         HashMap<String, Object> locationState = new HashMap<>();
         locationState.put("name", String.format("%s,%s,%s", PhilipsLight.identifier, location.getxCoordinate(), location.getyCoordinate()));
 
-        this.service.putLight(this.parentBridge.getUser().getId(), this.id, locationState).enqueue(new Callback<List<Object>>() {
+        this.service.putLight(this.parentBridge.getUser().getId(), this.name, locationState).enqueue(new Callback<List<Object>>() {
             @Override
-            public void onResponse(Call<List<Object>> call, Response<List<Object>> response) {
-                System.out.println(response.body());
-            }
+            public void onResponse(Call<List<Object>> call, Response<List<Object>> response) {}
 
             @Override
             public void onFailure(Call<List<Object>> call, Throwable t) {}

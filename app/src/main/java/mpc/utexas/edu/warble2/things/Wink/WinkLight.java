@@ -119,7 +119,7 @@ public class WinkLight extends Light {
     // ======== [start LightInterface implementation] ========
     @Override
     public void setOn() {
-        Log.d(TAG, "Set On (" + this.toString() + ")");
+        Log.i(TAG, "Set On (" + this.toString() + ")");
         HashMap<String, Object> lightState = new HashMap<>();
         HashMap<String, Object> desiredState = new HashMap<>();
         desiredState.put("powered", "true");
@@ -130,9 +130,7 @@ public class WinkLight extends Light {
 
         service.putLight("bearer " + WinkUtil.accessToken, this.id, lightState).enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                System.out.println(response.code());
-            }
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {}
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
@@ -142,7 +140,7 @@ public class WinkLight extends Light {
 
     @Override
     public void setOff() {
-        Log.d(TAG, "Set Off (" + this.toString() + ")");
+        Log.i(TAG, "Set Off (" + this.toString() + ")");
         HashMap<String, Object> lightState = new HashMap<>();
         HashMap<String, Object> desiredState = new HashMap<>();
         desiredState.put("powered", "false");
@@ -153,9 +151,7 @@ public class WinkLight extends Light {
 
         service.putLight("bearer " + WinkUtil.accessToken, this.id, lightState).enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                System.out.println(response.code());
-            }
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {}
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {}
@@ -167,7 +163,7 @@ public class WinkLight extends Light {
     // ======== [start LocationInterface implementation] ========
     @Override
     public void setLocation(Location location) {
-        Log.d(TAG, "Set Location (" + this.toString() + "): " + location.getxCoordinate() + ", "  + location.getyCoordinate());
+        Log.i(TAG, "Set Location (" + this.toString() + "): " + location.getxCoordinate() + ", "  + location.getyCoordinate());
         HashMap<String, Object> lightState = new HashMap<>();
         lightState.put("location", String.format("%s,%s", location.getxCoordinate(), location.getyCoordinate()));
 
@@ -175,9 +171,7 @@ public class WinkLight extends Light {
 
         service.putLight("bearer " + WinkUtil.accessToken, this.id, lightState).enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                System.out.println(response.code());
-            }
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {}
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {}

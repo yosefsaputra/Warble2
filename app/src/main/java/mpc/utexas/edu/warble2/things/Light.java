@@ -32,6 +32,7 @@ public abstract class Light extends Thing implements LightInterface, LocationInt
 
         return lights;
     }
+    // ======== [start Static methods] ========
 
     public void updateDb(Context context) {
         Log.d(TAG, "Update Light to Database");

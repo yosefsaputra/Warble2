@@ -22,10 +22,14 @@
     <Switch
         android:id="@+id/lightSwitch"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_height="27dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="44dp"
+        android:layout_marginTop="24dp"
+        android:scaleX="1.5"
+        android:scaleY="1.5"
         android:text="Light Switch"
+        app:layout_constraintBottom_toTopOf="@+id/canvasView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -80,5 +84,27 @@
         android:layout_marginStart="16dp"
         app:layout_constraintBottom_toTopOf="@+id/newCurrentLocationEditText"
         app:layout_constraintStart_toEndOf="@+id/currentLocationLabel" />
+
+    <Switch
+        android:id="@+id/demoSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="Demo"
+        app:layout_constraintBottom_toTopOf="@+id/currentLocationLabel"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <mpc.utexas.edu.warble2.ui.views.CanvasView
+        android:id="@+id/canvasView"
+        android:layout_width="320dp"
+        android:layout_height="160dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="18dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switchRefreshButton" />
 
 </android.support.constraint.ConstraintLayout>
