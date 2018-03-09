@@ -11,23 +11,23 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-import mpc.utexas.edu.warble2.features.Location;
-
 /**
  * Created by yosef on 3/7/2018.
  */
 
-public class CanvasView extends View{
+public class CanvasView extends View {
 
     private Paint mPathPaint;
     private Paint mLightPaint;
     private Paint mDevicePaint;
     private Paint mDeviceScopePaint;
 
-    private List<Location> pathPoints = new ArrayList<>();
-    private List<Location> lightPoints = new ArrayList<>();
-    private Location devicePoint=null;
-    private Location deviceScope=null;
+    private List<Point> pathPoints = new ArrayList<>();
+    private List<Point> lightPoints = new ArrayList<>();
+    private Point devicePoint=null;
+    private int deviceScope;
+
+    private boolean flipY = true;
 
     public CanvasView(Context context) {
         super(context);
@@ -53,42 +53,77 @@ public class CanvasView extends View{
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        canvas.drawColor(Color.BLUE);
+        canvas.drawColor(Color.DKGRAY);
 
-        Location fromPoint=null;
-        for (Location pathPoint: pathPoints) {
-            if (fromPoint == null) {
+        Point fromPoint=null;
+        if (flipY) {
+            for (Point pathPoint: pathPoints) {
+                if (fromPoint == null) {
+                    fromPoint = pathPoint;
+                    continue;
+                }
+                canvas.drawLine(fromPoint.x, this.getHeight() - fromPoint.y, pathPoint.x, this.getHeight() - pathPoint.y, this.mPathPaint);
                 fromPoint = pathPoint;
-                continue;
             }
-            canvas.drawLine(fromPoint.getxCoordinate(), fromPoint.getyCoordinate(), pathPoint.getxCoordinate(), pathPoint.getyCoordinate(), this.mPathPaint);
-            fromPoint = pathPoint;
-        }
 
-        for (Location lightPoint: lightPoints) {
-            canvas.drawOval(lightPoint.getxCoordinate() - 5,
-                    lightPoint.getyCoordinate() - 5,
-                    lightPoint.getxCoordinate() + 5,
-                    lightPoint.getyCoordinate() + 5,
-                    this.mLightPaint);
-        }
+            for (Point lightPoint: lightPoints) {
+                canvas.drawOval(
+                        lightPoint.x - 5,
+                        this.getHeight() - lightPoint.y - 5,
+                        lightPoint.x + 5,
+                        this.getHeight() - lightPoint.y + 5,
+                        this.mLightPaint);
+            }
 
-        if (!(devicePoint == null)) {
-            canvas.drawRect(devicePoint.getxCoordinate() - 5,
-                    devicePoint.getyCoordinate() - 5,
-                    devicePoint.getxCoordinate() + 5,
-                    devicePoint.getyCoordinate() + 5,
-                    this.mDevicePaint);
-            canvas.drawOval(devicePoint.getxCoordinate() - 100 / 2,
-                    devicePoint.getyCoordinate() - 100 / 2,
-                    devicePoint.getxCoordinate() + 100 / 2,
-                    devicePoint.getyCoordinate() + 100 / 2,
-                    this.mDeviceScopePaint);
+            if (!(devicePoint == null)) {
+                canvas.drawRect(
+                        devicePoint.x - 5,
+                        this.getHeight() - devicePoint.y - 5,
+                        devicePoint.x + 5,
+                        this.getHeight() - devicePoint.y + 5,
+                        this.mDevicePaint);
+                canvas.drawOval(
+                        devicePoint.x - deviceScope,
+                        this.getHeight() - devicePoint.y - deviceScope,
+                        devicePoint.x + deviceScope,
+                        this.getHeight() - devicePoint.y + deviceScope,
+                        this.mDeviceScopePaint);
+            }
+        } else {
+            for (Point pathPoint: pathPoints) {
+                if (fromPoint == null) {
+                    fromPoint = pathPoint;
+                    continue;
+                }
+                canvas.drawLine(fromPoint.x, fromPoint.y, pathPoint.x, pathPoint.y, this.mPathPaint);
+                fromPoint = pathPoint;
+            }
+
+            for (Point lightPoint: lightPoints) {
+                canvas.drawOval(lightPoint.x - 5,
+                        lightPoint.y - 5,
+                        lightPoint.x + 5,
+                        lightPoint.y + 5,
+                        this.mLightPaint);
+            }
+
+            if (!(devicePoint == null)) {
+                canvas.drawRect(devicePoint.x - 5,
+                        devicePoint.y - 5,
+                        devicePoint.x + 5,
+                        devicePoint.y + 5,
+                        this.mDevicePaint);
+                canvas.drawOval(devicePoint.x - deviceScope,
+                        devicePoint.y - deviceScope,
+                        devicePoint.x + deviceScope,
+                        devicePoint.y + deviceScope,
+                        this.mDeviceScopePaint);
+            }
         }
     }
 
     public void init(@Nullable AttributeSet attrs) {
-        mPathPaint = new Paint();
+        mPathPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPathPaint.setColor(Color.RED);
 
         mLightPaint = new Paint();
@@ -97,23 +132,31 @@ public class CanvasView extends View{
         mDevicePaint = new Paint();
         mDevicePaint.setColor(Color.GRAY);
 
-        mDeviceScopePaint = new Paint();
+        mDeviceScopePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mDeviceScopePaint.setColor(Color.GRAY);
         mDeviceScopePaint.setStyle(Paint.Style.STROKE);
     }
 
-    public void setPathPoints(List<Location> pathPoints) {
+    public void setPathPoints(List<Point> pathPoints) {
         this.pathPoints = pathPoints;
         invalidate();
     }
 
-    public void setLightPoints(List<Location> lightPoints) {
+    public void setLightPoints(List<Point> lightPoints) {
         this.lightPoints = lightPoints;
         invalidate();
     }
 
-    public void setDevicePoint(@Nullable Location devicePoint) {
+    public void setDevicePoint(@Nullable Point devicePoint) {
         this.devicePoint = devicePoint;
         invalidate();
+    }
+
+    public void setDeviceScope(int scope) {
+        this.deviceScope = scope;
+    }
+
+    public void setFlipY(Boolean flipY) {
+        this.flipY = flipY;
     }
 }

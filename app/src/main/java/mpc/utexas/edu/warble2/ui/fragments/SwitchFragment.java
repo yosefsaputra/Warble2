@@ -2,14 +2,11 @@ package mpc.utexas.edu.warble2.ui.fragments;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,24 +24,18 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.regex.Pattern;
 
 import mpc.utexas.edu.warble2.R;
 import mpc.utexas.edu.warble2.database.LocationConverter;
 import mpc.utexas.edu.warble2.features.Location;
 import mpc.utexas.edu.warble2.services.Demo.DemoService;
-import mpc.utexas.edu.warble2.things.Bridge;
 import mpc.utexas.edu.warble2.things.Light;
-import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 import mpc.utexas.edu.warble2.ui.MainActivity;
 import mpc.utexas.edu.warble2.ui.views.CanvasView;
+import mpc.utexas.edu.warble2.ui.views.Point;
 import mpc.utexas.edu.warble2.utils.DemoUtil;
+import mpc.utexas.edu.warble2.utils.ViewUtil;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Created by yosef on 11/28/2017.
@@ -54,17 +45,17 @@ public class SwitchFragment extends Fragment {
     private static String TAG = "SwitchFragment";
 
     private static Location currentLocation = new Location(0, 0);
-    private static double scopeSwitchDistance = 100.0;
+    private static float scopeSwitchDistance = 100;
 
+    private static long demoIntervalLocationUpdate = 200;
+
+    private static int demoXLimit;
+    private static int demoYLimit;
     private static List<String> demoTrajectoryArray = new ArrayList<>();
+    private static List<String> demoLightLocationArray = new ArrayList<>();
     private static int demoTrajectoryArrayCounter;
     private static boolean demoTrajectoryArrayDraw = false;
     private static boolean demoTrajectoryArrayDrawn = false;
-    private static double demoTrajectoryDrawScale = 2.5;
-    private static List<String> demoLightLocationArray = new ArrayList<>();
-
-    private static long intervalLocationUpdate = 200;
-    private static long intervalLocationUpdateToServer = 2000;
 
     private static Handler demoSetCurrentLocationHandler = new Handler();
     private static Runnable demoSetCurrentLocationRunnable = new Runnable() {
@@ -76,7 +67,7 @@ public class SwitchFragment extends Fragment {
             } catch (IndexOutOfBoundsException e) {
                 demoTrajectoryArrayCounter = 0;
             }
-            demoSetCurrentLocationHandler.postDelayed(this, intervalLocationUpdate);
+            demoSetCurrentLocationHandler.postDelayed(this, demoIntervalLocationUpdate);
         }
     };
 
@@ -89,8 +80,8 @@ public class SwitchFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        final CanvasView canvasView = (CanvasView) getView().findViewById(R.id.canvasView);
-        canvasView.init(null);
+        final CanvasView demoLocationCanvasView = (CanvasView) getView().findViewById(R.id.canvasView);
+        demoLocationCanvasView.init(null);
 
         Button switchRefreshButton = getView().findViewById(R.id.switchRefreshButton);
         switchRefreshButton.setOnClickListener(new View.OnClickListener() {
@@ -118,12 +109,12 @@ public class SwitchFragment extends Fragment {
             public void run() {
                 setCurrentLocationView();
 
-                Location location = currentLocation;
-                location.setxCoordinate((int)(location.getxCoordinate() / demoTrajectoryDrawScale));
-                location.setyCoordinate(160 - (int)(location.getyCoordinate() / demoTrajectoryDrawScale));
-                canvasView.setDevicePoint(location);
+                Point currentLocationPoint = new Point(
+                        (int) ViewUtil.pxToDp(getContext(), (float) currentLocation.getxCoordinate() * demoLocationCanvasView.getWidth() / demoXLimit),
+                        (int) ViewUtil.pxToDp(getContext(), (float) currentLocation.getyCoordinate() * demoLocationCanvasView.getHeight() / demoYLimit));
+                demoLocationCanvasView.setDevicePoint(currentLocationPoint);
 
-                setCurrentLocationViewHandler.postDelayed(this, intervalLocationUpdate);
+                setCurrentLocationViewHandler.postDelayed(this, demoIntervalLocationUpdate);
             }
         };
         setCurrentLocationViewHandler.post(setCurrentLocationViewRunnable);
@@ -134,30 +125,30 @@ public class SwitchFragment extends Fragment {
             @Override
             public void run() {
                 if (demoTrajectoryArrayDraw && !demoTrajectoryArrayDrawn && (demoTrajectoryArray.size() != 0)) {
-                    List<Location> demoTrajectoryLocationArray = new ArrayList<>();
+                    List<Point> demoTrajectoryLocationArray = new ArrayList<>();
                     for (String locationString: demoTrajectoryArray) {
-                        Location location = LocationConverter.toLocation(locationString);
-                        location.setxCoordinate((int)(location.getxCoordinate() / demoTrajectoryDrawScale));
-                        location.setyCoordinate(160 - (int)(location.getyCoordinate() / demoTrajectoryDrawScale));
-                        System.out.println(LocationConverter.toString(location));
-                        demoTrajectoryLocationArray.add(location);
+                        Point point = Point.toPoint(locationString);
+                        point.x = (int) ViewUtil.pxToDp(getContext(), point.x) * demoLocationCanvasView.getWidth() / demoXLimit;
+                        point.y = (int) ViewUtil.pxToDp(getContext(), point.y) * demoLocationCanvasView.getHeight() / demoYLimit;
+                        demoTrajectoryLocationArray.add(point);
                     }
-                    canvasView.setPathPoints(demoTrajectoryLocationArray);
+                    demoLocationCanvasView.setPathPoints(demoTrajectoryLocationArray);
 
-                    List<Location> demoTrajectoryLightArray = new ArrayList<>();
+                    List<Point> demoTrajectoryLightArray = new ArrayList<>();
                     for (String locationString: demoLightLocationArray) {
-                        Location location = LocationConverter.toLocation(locationString);
-                        location.setxCoordinate((int)(location.getxCoordinate() / demoTrajectoryDrawScale));
-                        location.setyCoordinate(160 - (int)(location.getyCoordinate() / demoTrajectoryDrawScale));
-                        System.out.println(LocationConverter.toString(location));
-                        demoTrajectoryLightArray.add(location);
+                        Point point = Point.toPoint(locationString);
+                        point.x = (int) ViewUtil.pxToDp(getContext(), point.x) * demoLocationCanvasView.getWidth() / demoXLimit;
+                        point.y = (int) ViewUtil.pxToDp(getContext(), point.y) * demoLocationCanvasView.getHeight() / demoYLimit;
+                        demoTrajectoryLightArray.add(point);
                     }
-                    canvasView.setLightPoints(demoTrajectoryLightArray);
+                    demoLocationCanvasView.setLightPoints(demoTrajectoryLightArray);
 
                     demoTrajectoryArrayDrawn = true;
                 }
 
-                drawCanvasHandler.postDelayed(this, intervalLocationUpdate);
+                demoLocationCanvasView.setDeviceScope((int) ViewUtil.pxToDp(getContext(), (float) scopeSwitchDistance * demoLocationCanvasView.getWidth() / demoXLimit));
+
+                drawCanvasHandler.postDelayed(this, demoIntervalLocationUpdate);
             }
         };
         drawCanvasHandler.post(drawCanvasRunnable);
@@ -176,6 +167,8 @@ public class SwitchFragment extends Fragment {
 
                     // Set TimerTask to update current location with a specific interval
                     demoSetCurrentLocationHandler.post(demoSetCurrentLocationRunnable);
+
+                    // Set demoCanvasXLimit and demoCanvasYLimit
 
                     demoTrajectoryArrayDraw = true;
                     demoTrajectoryArrayDrawn = false;
@@ -213,6 +206,8 @@ public class SwitchFragment extends Fragment {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     demoLightLocationArray.add((String) jsonArray.get(i));
                 }
+                demoXLimit = Integer.parseInt(jsonObject.getString("width"));
+                demoYLimit = Integer.parseInt(jsonObject.getString("height"));
             } catch (IOException | JSONException e) {
                 Log.d(TAG, "exception", e);
             }
