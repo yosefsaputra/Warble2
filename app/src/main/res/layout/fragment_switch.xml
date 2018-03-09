@@ -90,10 +90,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
         android:text="Demo"
-        app:layout_constraintBottom_toTopOf="@+id/currentLocationLabel"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintBottom_toTopOf="@+id/speedLabel"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <mpc.utexas.edu.warble2.ui.views.CanvasView
         android:id="@+id/canvasView"
@@ -106,5 +106,43 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/switchRefreshButton" />
+
+    <SeekBar
+        android:id="@+id/scopeSeekBar"
+        android:layout_width="232dp"
+        android:layout_height="24dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/currentLocationLabel"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/scopeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginLeft="16dp"
+        android:text="Device Scope"
+        app:layout_constraintBottom_toTopOf="@+id/currentLocationLabel"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/speedLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="Speed"
+        app:layout_constraintBottom_toTopOf="@+id/scopeLabel"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <SeekBar
+        android:id="@+id/speedSeekBar"
+        android:layout_width="232dp"
+        android:layout_height="24dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/scopeSeekBar"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

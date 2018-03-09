@@ -75,8 +75,8 @@ public class PhilipsBridge extends Bridge {
         List<Bridge> bridges = new ArrayList<>();
         List<String> uuid_bridges = new ArrayList<>();
         for (String upnp_message : upnp_messages) {
+            Log.d(TAG, upnp_message);
             if (upnp_message.contains("IpBridge")) {
-                Log.d(TAG, upnp_message);
                 Pattern pattern = Pattern.compile("LOCATION: (.+?)(\\r*)(\\n)", Pattern.DOTALL | Pattern.MULTILINE);
                 Matcher matcher = pattern.matcher(upnp_message);
                 if (matcher.find()) {
@@ -97,6 +97,7 @@ public class PhilipsBridge extends Bridge {
                 }
             }
         }
+
         return bridges;
     }
 
@@ -195,7 +196,7 @@ public class PhilipsBridge extends Bridge {
         try {
             JSONParser parser = new JSONParser();
             jsonObject = (JSONObject) parser.parse(responseBody.string());
-        } catch (ParseException | IOException | NullPointerException e) {
+        } catch (ParseException | IOException | NullPointerException | ClassCastException e) {
             Log.e(TAG, "exception", e);
             jsonObject = new JSONObject();
         }
@@ -237,8 +238,8 @@ public class PhilipsBridge extends Bridge {
         if (!users.isEmpty()) {
             ResponseBody responseBody;
             try {
-                responseBody = service.getLights(users.get(0).getId()).execute().body();
-            } catch (IOException e) {
+                responseBody = service.getLights(this.user.getId()).execute().body();
+            } catch (IOException | NullPointerException e) {
                 Log.e(TAG, "exception", e);
                 responseBody = null;
             }
@@ -247,7 +248,7 @@ public class PhilipsBridge extends Bridge {
             try {
                 JSONParser parser = new JSONParser();
                 jsonObject = (JSONObject) parser.parse(responseBody.string());
-            } catch (ParseException | IOException | NullPointerException e) {
+            } catch (ParseException | IOException | NullPointerException | ClassCastException e) {
                 Log.e(TAG, "exception", e);
                 jsonObject = new JSONObject();
             }
