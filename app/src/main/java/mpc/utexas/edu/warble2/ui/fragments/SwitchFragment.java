@@ -176,7 +176,7 @@ public class SwitchFragment extends Fragment {
 
                     // Set TimerTask to update current location with a specific interval
                     demoSetCurrentLocationHandler.post(demoSetCurrentLocationRunnable);
-                    
+
                     demoTrajectoryArrayDraw = true;
                     demoTrajectoryArrayDrawn = false;
 
@@ -184,11 +184,11 @@ public class SwitchFragment extends Fragment {
                     // Stop the TimerTask
                     demoSetCurrentLocationHandler.removeCallbacks(demoSetCurrentLocationRunnable);
 
-                    // Clear demoTrajectoryArray
-                    demoTrajectoryArray.clear();
-
-                    // Clear demoLightLocationArray
-                    demoLightLocationArray.clear();
+//                    // Clear demoTrajectoryArray
+//                    demoTrajectoryArray.clear();
+//
+//                    // Clear demoLightLocationArray
+//                    demoLightLocationArray.clear();
 
                     demoTrajectoryArrayDraw = false;
                     demoTrajectoryArrayDrawn = false;
@@ -206,9 +206,11 @@ public class SwitchFragment extends Fragment {
                 responseBody = demoService.loadTrajectory().execute().body();
                 JSONObject jsonObject = new JSONObject(responseBody.string().replace(" ", ""));
                 JSONArray jsonArray = jsonObject.getJSONArray("trajectory");
+                demoTrajectoryArray.clear();
                 for (int i = 0; i < jsonArray.length(); i++) {
                     demoTrajectoryArray.add((String) jsonArray.get(i));
                 }
+                demoLightLocationArray.clear();
                 jsonArray = jsonObject.getJSONArray("lights");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     demoLightLocationArray.add((String) jsonArray.get(i));
@@ -239,6 +241,7 @@ public class SwitchFragment extends Fragment {
         final Handler handler = new Handler();
         final Runnable runnable = new Runnable() {
             @Override
+            @Override
             public void run() {
                 List<Light> lights = new ArrayList<>();
                 final List<Light> selectedLights = new ArrayList<>();
@@ -259,6 +262,15 @@ public class SwitchFragment extends Fragment {
                     }
                 } else {
                     selectedLights.addAll(lights);
+                }
+
+                Log.d(TAG, "All Lights:");
+                for (Light i: lights) {
+                    Log.d(TAG, " - " + i.toString());
+                }
+                Log.d(TAG, "Selected Lights:");
+                for (Light i: selectedLights) {
+                    Log.d(TAG, " - " + i.toString());
                 }
 
                 final Switch lightSwitch = (Switch) getView().findViewById(R.id.lightSwitch);

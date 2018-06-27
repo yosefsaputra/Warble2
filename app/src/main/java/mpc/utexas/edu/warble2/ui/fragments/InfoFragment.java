@@ -104,7 +104,7 @@ public class InfoFragment extends Fragment {
             // Discover Things from each Bridge
             List<Thing> things = new ArrayList<>();
             for (Bridge bridge: sBridges[0]) {
-                things.addAll(bridge.discoverThings(getContext()));
+                things.addAll(bridge.discoverLights(getContext()));
             }
 
             return things;

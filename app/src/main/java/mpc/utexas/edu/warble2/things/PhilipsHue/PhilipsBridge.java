@@ -260,18 +260,22 @@ public class PhilipsBridge extends Bridge {
                 JSONObject details = (JSONObject) jsonObject.get(o);
                 String lightStringLocation = (String) details.get("name");
                 String lightStringId = (String) details.get("uniqueid");
+                JSONObject state = (JSONObject) details.get("state");
+                Boolean lightReachable = (Boolean) state.get("reachable");
 
-                String regex = "(\\w+,)(\\d+,\\d+)";
-                Pattern r = Pattern.compile(regex);
-                Matcher m = r.matcher(lightStringLocation);
+                if (lightReachable) {
+                    String regex = "(\\w+,)(\\d+,\\d+)";
+                    Pattern r = Pattern.compile(regex);
+                    Matcher m = r.matcher(lightStringLocation);
 
-                Light philipsLight;
-                if (m.find()) {
-                    philipsLight = new PhilipsLight(lightId, lightStringId, LocationConverter.toLocation(String.format("(%s)", m.group(2))), users.get(0), this);
-                } else {
-                    philipsLight = new PhilipsLight(lightId, lightStringId, LocationConverter.toLocation(null), users.get(0), this);
+                    Light philipsLight;
+                    if (m.find()) {
+                        philipsLight = new PhilipsLight(lightId, lightStringId, LocationConverter.toLocation(String.format("(%s)", m.group(2))), users.get(0), this);
+                    } else {
+                        philipsLight = new PhilipsLight(lightId, lightStringId, LocationConverter.toLocation(null), users.get(0), this);
+                    }
+                    lights.add(philipsLight);
                 }
-                lights.add(philipsLight);
             }
 
             // for (String lightId : lightIds) {

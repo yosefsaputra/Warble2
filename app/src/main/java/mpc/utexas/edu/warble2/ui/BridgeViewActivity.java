@@ -29,6 +29,7 @@ import mpc.utexas.edu.warble2.things.Light;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsBridge;
 import mpc.utexas.edu.warble2.things.PhilipsHue.PhilipsLight;
 import mpc.utexas.edu.warble2.things.Thing;
+import mpc.utexas.edu.warble2.things.Wink.WinkLight;
 import mpc.utexas.edu.warble2.users.PhilipsHue.PhilipsUser;
 import mpc.utexas.edu.warble2.users.User;
 import mpc.utexas.edu.warble2.utils.PhilipsHueUtil;
@@ -155,7 +156,6 @@ public class BridgeViewActivity extends AppCompatActivity {
 
     private void setLightsListView(Bridge bridge) {
         // Discover Lights and Update Lights ListView
-        PhilipsLight.deleteAllDb(getApplicationContext());
         new DiscoverLights().execute(bridge);
     }
 
