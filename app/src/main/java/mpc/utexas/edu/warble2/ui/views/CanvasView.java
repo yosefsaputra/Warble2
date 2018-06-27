@@ -27,6 +27,8 @@ public class CanvasView extends View {
     private Point devicePoint=null;
     private int deviceScope;
 
+    private int lightPointSize = 10;
+    private int devicePointSize = 10;
     private boolean flipY = true;
 
     public CanvasView(Context context) {
@@ -53,6 +55,9 @@ public class CanvasView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        this.lightPointSize = this.getHeight() / 30;
+        this.devicePointSize = this.getHeight() / 35;
+
         canvas.drawColor(Color.DKGRAY);
 
         Point fromPoint=null;
@@ -68,19 +73,19 @@ public class CanvasView extends View {
 
             for (Point lightPoint: lightPoints) {
                 canvas.drawOval(
-                        lightPoint.x - 5,
-                        this.getHeight() - lightPoint.y - 5,
-                        lightPoint.x + 5,
-                        this.getHeight() - lightPoint.y + 5,
+                        lightPoint.x - lightPointSize,
+                        this.getHeight() - lightPoint.y - lightPointSize,
+                        lightPoint.x + lightPointSize,
+                        this.getHeight() - lightPoint.y + lightPointSize,
                         this.mLightPaint);
             }
 
             if (!(devicePoint == null)) {
                 canvas.drawRect(
-                        devicePoint.x - 5,
-                        this.getHeight() - devicePoint.y - 5,
-                        devicePoint.x + 5,
-                        this.getHeight() - devicePoint.y + 5,
+                        devicePoint.x - devicePointSize,
+                        this.getHeight() - devicePoint.y - devicePointSize,
+                        devicePoint.x + devicePointSize,
+                        this.getHeight() - devicePoint.y + devicePointSize,
                         this.mDevicePaint);
                 canvas.drawOval(
                         devicePoint.x - deviceScope,
@@ -100,18 +105,18 @@ public class CanvasView extends View {
             }
 
             for (Point lightPoint: lightPoints) {
-                canvas.drawOval(lightPoint.x - 5,
-                        lightPoint.y - 5,
-                        lightPoint.x + 5,
-                        lightPoint.y + 5,
+                canvas.drawOval(lightPoint.x - lightPointSize,
+                        lightPoint.y - lightPointSize,
+                        lightPoint.x + lightPointSize,
+                        lightPoint.y + lightPointSize,
                         this.mLightPaint);
             }
 
             if (!(devicePoint == null)) {
-                canvas.drawRect(devicePoint.x - 5,
-                        devicePoint.y - 5,
-                        devicePoint.x + 5,
-                        devicePoint.y + 5,
+                canvas.drawRect(devicePoint.x - devicePointSize,
+                        devicePoint.y - devicePointSize,
+                        devicePoint.x + devicePointSize,
+                        devicePoint.y + devicePointSize,
                         this.mDevicePaint);
                 canvas.drawOval(devicePoint.x - deviceScope,
                         devicePoint.y - deviceScope,
@@ -126,10 +131,10 @@ public class CanvasView extends View {
         mPathPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPathPaint.setColor(Color.RED);
 
-        mLightPaint = new Paint();
+        mLightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mLightPaint.setColor(Color.GREEN);
 
-        mDevicePaint = new Paint();
+        mDevicePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mDevicePaint.setColor(Color.GRAY);
 
         mDeviceScopePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -158,5 +163,13 @@ public class CanvasView extends View {
 
     public void setFlipY(Boolean flipY) {
         this.flipY = flipY;
+    }
+
+    public void setLightPointSize(int lightPointSize) {
+        this.lightPointSize = lightPointSize;
+    }
+
+    public void setDevicePointSize(int devicePointSize) {
+        this.devicePointSize = devicePointSize;
     }
 }

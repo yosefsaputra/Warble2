@@ -128,7 +128,7 @@ public class PhilipsLight extends Light {
         Log.i(TAG, "Set On (" + this.toString() + ")");
         HashMap<String, Object> lightState = new HashMap<>();
         lightState.put("on", true);
-        lightState.put("bri", 50);
+        lightState.put("bri", 100);
 
         service.putLightState(this.parentBridge.getUser().getId(), this.name, lightState).enqueue(new Callback<List<Object>>() {
             @Override

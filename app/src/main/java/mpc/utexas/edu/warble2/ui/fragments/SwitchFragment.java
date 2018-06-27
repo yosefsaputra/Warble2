@@ -14,8 +14,11 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.google.gson.annotations.Expose;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,9 +49,9 @@ public class SwitchFragment extends Fragment {
 
     private static Location currentLocation = new Location(0, 0);
     private static float scopeSwitchDistance = 100;
+    private static long intervalLightSwitch = 100;
 
-    private static long demoIntervalLocationUpdate = 200;
-
+    private static long demoIntervalLocationUpdate = 100;
     private static int demoXLimit;
     private static int demoYLimit;
     private static List<String> demoTrajectoryArray = new ArrayList<>();
@@ -98,6 +101,12 @@ public class SwitchFragment extends Fragment {
 
         // Set Demo Switch
         setDemoSwitch();
+
+        // Set Device Speed Seek Bar
+        setSpeedSeekBar();
+
+        // Set Device Scope Seek Bar
+        setScopeSeekBar();
 
         // Set New Current Location Form
         setNewCurrentLocationForm();
@@ -168,8 +177,6 @@ public class SwitchFragment extends Fragment {
                     // Set TimerTask to update current location with a specific interval
                     demoSetCurrentLocationHandler.post(demoSetCurrentLocationRunnable);
 
-                    // Set demoCanvasXLimit and demoCanvasYLimit
-
                     demoTrajectoryArrayDraw = true;
                     demoTrajectoryArrayDrawn = false;
 
@@ -177,11 +184,11 @@ public class SwitchFragment extends Fragment {
                     // Stop the TimerTask
                     demoSetCurrentLocationHandler.removeCallbacks(demoSetCurrentLocationRunnable);
 
-                    // Clear demoTrajectoryArray
-                    demoTrajectoryArray.clear();
-
-                    // Clear demoLightLocationArray
-                    demoLightLocationArray.clear();
+//                    // Clear demoTrajectoryArray
+//                    demoTrajectoryArray.clear();
+//
+//                    // Clear demoLightLocationArray
+//                    demoLightLocationArray.clear();
 
                     demoTrajectoryArrayDraw = false;
                     demoTrajectoryArrayDrawn = false;
@@ -199,9 +206,11 @@ public class SwitchFragment extends Fragment {
                 responseBody = demoService.loadTrajectory().execute().body();
                 JSONObject jsonObject = new JSONObject(responseBody.string().replace(" ", ""));
                 JSONArray jsonArray = jsonObject.getJSONArray("trajectory");
+                demoTrajectoryArray.clear();
                 for (int i = 0; i < jsonArray.length(); i++) {
                     demoTrajectoryArray.add((String) jsonArray.get(i));
                 }
+                demoLightLocationArray.clear();
                 jsonArray = jsonObject.getJSONArray("lights");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     demoLightLocationArray.add((String) jsonArray.get(i));
@@ -232,6 +241,7 @@ public class SwitchFragment extends Fragment {
         final Handler handler = new Handler();
         final Runnable runnable = new Runnable() {
             @Override
+            @Override
             public void run() {
                 List<Light> lights = new ArrayList<>();
                 final List<Light> selectedLights = new ArrayList<>();
@@ -254,6 +264,15 @@ public class SwitchFragment extends Fragment {
                     selectedLights.addAll(lights);
                 }
 
+                Log.d(TAG, "All Lights:");
+                for (Light i: lights) {
+                    Log.d(TAG, " - " + i.toString());
+                }
+                Log.d(TAG, "Selected Lights:");
+                for (Light i: selectedLights) {
+                    Log.d(TAG, " - " + i.toString());
+                }
+
                 final Switch lightSwitch = (Switch) getView().findViewById(R.id.lightSwitch);
                 lightSwitch.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -270,10 +289,42 @@ public class SwitchFragment extends Fragment {
                     }
                 });
 
-                handler.postDelayed(this, 200);
+                handler.postDelayed(this, intervalLightSwitch);
             }
         };
-        handler.postDelayed(runnable, 200);
+        handler.post(runnable);
+    }
+
+    private void setSpeedSeekBar() {
+        SeekBar speedSeekBar = (SeekBar) getView().findViewById(R.id.speedSeekBar);
+        speedSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                demoIntervalLocationUpdate = (long) (10 + Math.pow(2, (100 - i) / 10));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+    }
+
+    private void setScopeSeekBar() {
+        SeekBar scopeSeekBar = (SeekBar) getView().findViewById(R.id.scopeSeekBar);
+        scopeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                scopeSwitchDistance = i * 4;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
     }
 
     private void setCurrentLocationView() {
